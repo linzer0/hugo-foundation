@@ -1,0 +1,60 @@
+{{- /*
+  Convenience mapping: Page -> card dict.
+
+  NOT part of the fn/card contract. This is the documented default mapping that
+  contract §7.4 permits: it is a separate, shadowable partial precisely so a
+  consumer can replace it without touching the Foundation. Shadow it at the
+  same path in the brand theme to map your own front matter.
+
+  Default mapping:
+    url        -> RelPermalink
+    title      -> Title
+    description-> Description, falling back to the summary
+    image      -> cover.image, falling back to hero.image, resolved against the
+                  page bundle when a matching resource exists
+    imageAlt   -> cover.alt, falling back to the title
+    meta       -> date, when the page has one
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $page := .page -}}
+{{- $mediaPartial := .mediaPartial | default "" -}}
+
+{{- $image := "" -}}
+{{- with $page.Params.cover -}}
+  {{- with .image -}}
+    {{- $image = . -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $image -}}
+  {{- with $page.Params.hero -}}
+    {{- with .image -}}
+      {{- $image = . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $imageURL := "" -}}
+{{- with $image -}}
+  {{- $imageURL = . | relURL -}}
+  {{- with ($page.Resources.ByType "image").GetMatch (printf "*%s*" .) -}}
+    {{- $imageURL = .RelPermalink -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $meta := slice -}}
+{{- if not $page.Date.IsZero -}}
+  {{- $meta = $meta | append (dict
+    "label" $s.date
+    "value" ($page.Date | time.Format (default ":date_long" site.Params.DateFormat))
+    "datetime" ($page.Date.Format "2006-01-02")) -}}
+{{- end -}}
+
+{{- return (dict
+  "url" $page.RelPermalink
+  "title" $page.Title
+  "description" ($page.Description | default ($page.Summary | plainify | htmlUnescape))
+  "image" $imageURL
+  "imageAlt" ($page.Params.cover.alt | default $page.Title)
+  "meta" $meta
+  "media" (cond (ne $mediaPartial "") (partial $mediaPartial (dict "page" $page)) "")
+) -}}

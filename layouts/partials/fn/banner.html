@@ -1,0 +1,28 @@
+{{- /*
+  Banner — full-width notice strip.
+
+  Contract: docs/CONTRACTS.md §7.2
+
+  `role` is opt-in. A server-rendered banner is static content and must not be a
+  live region; pass role: "status" only when the banner is injected dynamically.
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $text := .text -}}
+{{- $tone := .tone | default "info" -}}
+{{- $link := .link | default dict -}}
+{{- $dismissible := .dismissible | default false -}}
+{{- $class := .class | default "" -}}
+{{- $id := .id | default "" -}}
+{{- if $text -}}
+<div class="fn-banner fn-banner--{{ $tone }}{{ with $class }} {{ . }}{{ end }}"{{ with $id }} id="{{ . }}"{{ end }}{{ with .role }} role="{{ . }}"{{ end }}>
+  <p class="fn-banner__text">{{ $text }}</p>
+  {{- if and $link.url $link.label }}
+  <a class="fn-banner__link" href="{{ $link.url }}">{{ $link.label }}</a>
+  {{- end }}
+  {{- if $dismissible }}
+  <button class="fn-banner__dismiss" type="button" data-fn-banner-dismiss aria-label="{{ $s.bannerDismiss }}">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  {{- end }}
+</div>
+{{- end -}}

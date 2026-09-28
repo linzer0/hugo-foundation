@@ -1,0 +1,14 @@
+{{- /*
+  Demo-owned card artwork, passed through the card `media` slot.
+
+  This is the point of the slot: a consumer supplies its own visual language
+  without the Foundation having an opinion about it. Both skins style this same
+  block, and style it differently.
+*/ -}}
+{{- $seed := sha1 .page.RelPermalink -}}
+{{- $hue := mod (int (printf "0x%s" (substr $seed 0 2))) 360 -}}
+{{- $angle := add 20 (mod (int (printf "0x%s" (substr $seed 2 2))) 140) -}}
+<div class="fixture-art" aria-hidden="true" style="--fixture-hue: {{ $hue }}; --fixture-angle: {{ $angle }}deg;">
+  <span class="fixture-art__grid"></span>
+  <span class="fixture-art__mark"></span>
+</div>

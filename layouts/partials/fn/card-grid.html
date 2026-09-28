@@ -1,0 +1,41 @@
+{{- /*
+  Card grid.
+
+  Contract: docs/CONTRACTS.md §7.4
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $ctx := . -}}
+{{- $defaults := .card | default dict -}}
+{{- $mediaPartial := .mediaPartial | default "" -}}
+{{- $variant := .variant | default "" -}}
+{{- $class := .class | default "" -}}
+{{- $columns := .columns | default "auto" -}}
+{{- $emptyPartial := .emptyPartial | default "" -}}
+
+{{- $items := .items | default slice -}}
+{{- with .pages -}}
+  {{- range . -}}
+    {{- $items = $items | append (partial "fn/page-to-card.html" (dict "page" . "strings" $s "mediaPartial" $mediaPartial)) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $style := "" -}}
+{{- if ne $columns "auto" -}}
+  {{- $style = printf "--fn-card-grid-columns:repeat(%s,1fr);" $columns -}}
+{{- end -}}
+
+{{- if $items -}}
+<div class="fn-card-grid{{ with $variant }} fn-card-grid--{{ . }}{{ end }}{{ with $class }} {{ . }}{{ end }}"{{ with $style }} style="{{ . | safeCSS }}"{{ end }}>
+  {{- range $items -}}
+    {{- $card := merge $defaults . -}}
+    {{- $card = merge $card (dict "strings" $s "variant" (cond (ne $variant "") $variant "")) -}}
+    {{- partial "fn/card.html" $card }}
+  {{- end -}}
+</div>
+{{- else -}}
+  {{- with $emptyPartial -}}
+    {{- partial . $ctx -}}
+  {{- else -}}
+<div class="fn-card-grid fn-card-grid--empty"></div>
+  {{- end -}}
+{{- end -}}

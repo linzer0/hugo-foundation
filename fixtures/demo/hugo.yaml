@@ -1,0 +1,30 @@
+baseURL: "https://fixture.example/"
+title: "Foundation Fixture"
+
+# Fixture-local wiring.
+#
+# `themesDir: "."` puts the theme lookup next to this file instead of inside a
+# themes/ subdirectory, so the fixture can reach two things at once:
+#   skins/skin-a  -> a skin sitting beside the site
+#   ../..         -> the Foundation repository itself, two levels up
+#
+# A real consumer wires the Foundation as a git submodule under themes/, which
+# is what linzer0.github.io does. The fixture cannot use a submodule, so it
+# points at the checkout directly.
+#
+# Order matters: the skin is declared before the Foundation, so a skin that
+# ever ships a template wins over the Foundation's. See docs/CONTRACTS.md §2.
+themesDir: "."
+theme:
+  - skins/skin-a
+  - ../..
+
+disableKinds:
+  - taxonomy
+  - term
+  - rss
+  - sitemap
+
+params:
+  env: fixture
+  skin: skin-a

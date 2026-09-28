@@ -1,0 +1,62 @@
+{{- /*
+  Hero — top-of-page identity block.
+
+  Contract: docs/CONTRACTS.md §7.1
+  The background is delivered as a CSS custom property, so it stays out of the
+  accessibility tree and needs no alt.
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $page := .page -}}
+{{- $title := .title | default $page.Title -}}
+{{- $description := .description | default $page.Description -}}
+{{- $overline := .overline | default "" -}}
+{{- $level := .level | default 1 -}}
+{{- $align := .align | default "start" -}}
+{{- $class := .class | default "" -}}
+{{- $meta := .meta | default slice -}}
+
+{{- $imageURL := "" -}}
+{{- with .image -}}
+  {{- $imageURL = . | relURL -}}
+  {{- with $page -}}
+    {{- with ($.page.Resources.ByType "image").GetMatch (printf "*%s*" .) -}}
+      {{- $imageURL = .RelPermalink -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $style := "" -}}
+{{- with $imageURL -}}
+  {{- $style = printf "--fn-hero-image:url('%s');" . -}}
+{{- end -}}
+
+{{- if $title -}}
+<header class="fn-hero fn-hero--align-{{ $align }}{{ with $class }} {{ . }}{{ end }}"{{ with $style }} style="{{ . | safeCSS }}"{{ end }}>
+  <div class="fn-hero__shade" aria-hidden="true"></div>
+  <div class="fn-hero__content">
+    {{- with $overline }}
+    <p class="fn-hero__overline">{{ . }}</p>
+    {{- end }}
+    <h{{ $level }} class="fn-hero__title">{{ $title }}</h{{ $level }}>
+    {{- with $description }}
+    <p class="fn-hero__lead">{{ . }}</p>
+    {{- end }}
+    {{- with $meta }}
+    <dl class="fn-hero__meta">
+      {{- range . }}
+      <div class="fn-hero__meta-item">
+        <dt>{{ .term }}</dt>
+        <dd>
+          {{- if .datetime -}}
+          <time datetime="{{ .datetime }}">{{ .value }}</time>
+          {{- else -}}
+          {{ .value }}
+          {{- end -}}
+        </dd>
+      </div>
+      {{- end }}
+    </dl>
+    {{- end }}
+  </div>
+</header>
+{{- end -}}

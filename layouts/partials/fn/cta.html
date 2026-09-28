@@ -1,0 +1,31 @@
+{{- /*
+  CTA — call-to-action block.
+
+  Contract: docs/CONTRACTS.md §7.5
+  Actions render as a list so the action set is announced as a set.
+*/ -}}
+{{- $actions := .actions | default slice -}}
+{{- $align := .align | default "center" -}}
+{{- $level := .level | default 2 -}}
+{{- $class := .class | default "" -}}
+{{- if or .title .text $actions -}}
+<section class="fn-cta fn-cta--align-{{ $align }}{{ with $class }} {{ . }}{{ end }}"{{ with .id }} id="{{ . }}"{{ end }}>
+  <div class="fn-cta__content">
+    {{- with .title }}
+    <h{{ $level }} class="fn-cta__title">{{ . }}</h{{ $level }}>
+    {{- end }}
+    {{- with .text }}
+    <p class="fn-cta__text">{{ . }}</p>
+    {{- end }}
+  </div>
+  {{- with $actions }}
+  <ul class="fn-cta__actions">
+    {{- range . }}
+    <li class="fn-cta__action-item">
+      <a class="fn-cta__action fn-cta__action--{{ .variant | default "secondary" }}" href="{{ .url }}"{{ if .external }} rel="noopener noreferrer"{{ end }}>{{ .label }}</a>
+    </li>
+    {{- end }}
+  </ul>
+  {{- end }}
+</section>
+{{- end -}}

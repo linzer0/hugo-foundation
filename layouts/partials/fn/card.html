@@ -1,0 +1,65 @@
+{{- /*
+  Card — one content card.
+
+  Contract: docs/CONTRACTS.md §7.4
+
+  Takes plain data only. Converting a Page into a card is a consumer concern;
+  see fn/page-to-card.html for the optional convenience mapping.
+
+  The `media` slot replaces the whole media region, which is how a brand layer
+  supplies its own artwork (generated covers, illustrations) without the
+  Foundation having to know it exists.
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $title := .title -}}
+{{- $url := .url -}}
+{{- $level := .headingLevel | default 3 -}}
+{{- $variant := .variant | default "" -}}
+{{- $class := .class | default "" -}}
+{{- $meta := .meta | default slice -}}
+{{- $tags := .tags | default slice -}}
+{{- $image := .image | default "" -}}
+{{- $imageAlt := .imageAlt | default $title -}}
+{{- $media := .media -}}
+
+{{- if $title -}}
+<article class="fn-card{{ with $variant }} fn-card--{{ . }}{{ end }}{{ with $class }} {{ . }}{{ end }}">
+  <a class="fn-card__link" href="{{ $url }}" aria-label="{{ $s.readMore }}: {{ $title | plainify }}">
+    <div class="fn-card__media">
+      {{- with $media }}
+      {{ . }}
+      {{- else }}
+        {{- with $image }}
+      <img class="fn-card__image" src="{{ . | relURL }}" alt="{{ $imageAlt }}" loading="lazy" decoding="async">
+        {{- end }}
+      {{- end }}
+    </div>
+    <div class="fn-card__body">
+      {{- with $meta }}
+      <div class="fn-card__meta">
+        {{- range . }}
+        <span class="fn-card__meta-item">
+          {{- if .datetime -}}
+          <time datetime="{{ .datetime }}">{{ .value }}</time>
+          {{- else -}}
+          {{ .value }}
+          {{- end -}}
+        </span>
+        {{- end }}
+      </div>
+      {{- end }}
+      <h{{ $level }} class="fn-card__title">{{ $title }}</h{{ $level }}>
+      {{- with .description }}
+      <p class="fn-card__description">{{ . }}</p>
+      {{- end }}
+      {{- with $tags }}
+      <ul class="fn-card__tags">
+        {{- range . }}
+        <li class="fn-card__tag">{{ . }}</li>
+        {{- end }}
+      </ul>
+      {{- end }}
+    </div>
+  </a>
+</article>
+{{- end -}}

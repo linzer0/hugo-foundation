@@ -1,0 +1,13 @@
+{{- define "main" -}}
+  {{- $s := partial "fn/strings.html" . -}}
+  {{- $works := where .RegularPages "Section" "work" -}}
+  {{- partial "fn/page-shell.html" (dict
+    "page" .
+    "hero" (dict
+      "overline" "Fixture"
+      "title" .Title
+      "description" .Description
+    )
+    "content" (partial "home.html" (dict "page" . "works" $works "strings" $s))
+  ) -}}
+{{- end -}}

@@ -1,0 +1,25 @@
+{{- /*
+  Section heading — kicker, title, description, optional trailing link.
+
+  Contract: docs/CONTRACTS.md §7.3
+*/ -}}
+{{- $title := .title -}}
+{{- $level := .level | default 2 -}}
+{{- $link := .link | default dict -}}
+{{- $class := .class | default "" -}}
+{{- if $title -}}
+<div class="fn-section-heading{{ with $class }} {{ . }}{{ end }}">
+  <div class="fn-section-heading__text">
+    {{- with .kicker }}
+    <p class="fn-kicker">{{ . }}</p>
+    {{- end }}
+    <h{{ $level }} class="fn-section-heading__title"{{ with .id }} id="{{ . }}"{{ end }}>{{ $title }}</h{{ $level }}>
+    {{- with .description }}
+    <p class="fn-section-heading__description">{{ . }}</p>
+    {{- end }}
+  </div>
+  {{- if and $link.url $link.label }}
+  <a class="fn-section-heading__link" href="{{ $link.url }}">{{ $link.label }}</a>
+  {{- end }}
+</div>
+{{- end -}}

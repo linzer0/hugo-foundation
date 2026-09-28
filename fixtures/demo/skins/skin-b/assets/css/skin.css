@@ -1,0 +1,146 @@
+/*
+ * Skin B — "editorial".
+ *
+ * Light, warm, generous. A serif display face, large radii, a deliberately
+ * single-column card list, a centred hero, and hairline rules instead of boxes.
+ * It shares nothing with skin A except the Foundation it is built on.
+ */
+
+:root {
+    --fn-content-width: 48rem;
+    --fn-content-padding: 2rem;
+
+    --fn-surface: #fbf7f0;
+    --fn-text: #2a2622;
+    --fn-text-muted: #6f675d;
+    --fn-accent: #8a4b2a;
+
+    --fn-hero-bg: #f2e9dc;
+    --fn-hero-fg: #2a2622;
+    --fn-hero-min-height: 30rem;
+    --fn-hero-align: center;
+    --fn-hero-title-size: clamp(2.4rem, 7vw, 4rem);
+    --fn-hero-overlay: linear-gradient(to bottom, #f2e9dc00, #f2e9dccc);
+    --fn-kicker-color: #8a4b2a;
+    --fn-kicker-transform: none;
+    --fn-kicker-size: 0.95rem;
+
+    --fn-section-gap: 2.5rem;
+    --fn-section-title-size: 2rem;
+
+    --fn-card-grid-columns: 1fr;
+    --fn-card-gap: 0;
+    --fn-card-radius: 0;
+    --fn-card-border: 0;
+    --fn-card-bg: transparent;
+    --fn-card-media-bg: #efe5d6;
+    --fn-card-media-aspect: 3 / 1;
+    --fn-card-padding: 0 0 1.5rem;
+    --fn-card-title-size: 1.35rem;
+    --fn-tag-bg: #efe5d6;
+    --fn-tag-radius: 999px;
+
+    --fn-cta-bg: #2a2622;
+    --fn-cta-fg: #fbf7f0;
+    --fn-cta-radius: 0;
+    --fn-cta-pad: 2.5rem;
+    --fn-cta-primary-bg: #fbf7f0;
+    --fn-cta-primary-fg: #2a2622;
+    --fn-cta-action-radius: 999px;
+
+    --fn-banner-bg: #efe5d6;
+    --fn-banner-fg: #2a2622;
+    --fn-banner-accent: #8a4b2a;
+    --fn-banner-accent-width: 2px;
+}
+
+.fn-body {
+    margin: 0;
+    background: var(--fn-surface);
+    color: var(--fn-text);
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.fn-shell__main {
+    border-top: 1px solid #e0d5c5;
+}
+
+.fn-hero__overline {
+    font-style: italic;
+}
+
+.fn-hero__title {
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.fn-section-heading {
+    display: block;
+    text-align: center;
+}
+
+.fn-section-heading__link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-style: italic;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.fn-section-heading__description {
+    margin-inline: auto;
+    font-style: italic;
+}
+
+/* Cards become a ruled list: media on top, hairline between entries. */
+.fn-card {
+    border-bottom: 1px solid #e0d5c5;
+}
+
+.fn-card:last-child {
+    border-bottom: 0;
+}
+
+.fn-card__description {
+    font-style: italic;
+}
+
+.fn-banner {
+    justify-content: center;
+    font-style: italic;
+}
+
+.fn-cta__action {
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.fn-skip-link {
+    border-radius: 999px;
+}
+
+/* Same demo-owned block, styled as a printed plate rather than a technical grid. */
+.fixture-art {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 30% 40%, hsl(var(--fixture-hue, 30) 45% 88%) 0%, transparent 60%),
+        #efe5d6;
+}
+
+.fixture-art__grid {
+    display: none;
+}
+
+.fixture-art__mark {
+    width: 28%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: hsl(var(--fixture-hue, 30) 45% 62%);
+    box-shadow: 0 0 0 0.5rem hsl(var(--fixture-hue, 30) 45% 78%);
+}

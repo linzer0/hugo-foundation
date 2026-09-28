@@ -1,0 +1,337 @@
+/*
+ * Structural defaults for the Foundation View components.
+ *
+ * Contract: docs/CONTRACTS.md §5
+ *
+ * This file decides position, stacking, sizing and flow. It deliberately
+ * contains no brand color: every color-bearing property reads a --fn-* custom
+ * property, and a brand layer supplies the values. What follows each var() is a
+ * neutral fallback, not a design decision.
+ */
+
+.fn-skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+    padding: 0.75em 1em;
+    background: var(--fn-surface, #fff);
+    color: var(--fn-text, #111);
+}
+
+.fn-skip-link:focus {
+    left: 0;
+}
+
+.fn-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.fn-shell__main {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: var(--fn-content-width, 72rem);
+    margin-inline: auto;
+    padding: var(--fn-content-padding, 2rem);
+}
+
+.fn-shell__aside {
+    width: 100%;
+    max-width: var(--fn-content-width, 72rem);
+    margin-inline: auto;
+    padding: 0 var(--fn-content-padding, 2rem);
+}
+
+/* Hero ------------------------------------------------------------------ */
+
+.fn-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: var(--fn-hero-min-height, 20rem);
+    padding: var(--fn-hero-padding, 3rem var(--fn-content-padding, 2rem));
+    background-color: var(--fn-hero-bg, #17181c);
+    background-image: var(--fn-hero-image, none);
+    background-size: var(--fn-hero-image-size, cover);
+    background-position: var(--fn-hero-image-position, center);
+    color: var(--fn-hero-fg, #fff);
+    text-align: var(--fn-hero-align, start);
+}
+
+.fn-hero--align-center {
+    --fn-hero-align: center;
+}
+
+.fn-hero--align-end {
+    --fn-hero-align: end;
+}
+
+.fn-hero__shade {
+    position: absolute;
+    inset: 0;
+    background: var(--fn-hero-overlay, linear-gradient(to bottom, rgb(0 0 0 / 0.15), rgb(0 0 0 / var(--fn-hero-overlay-strength, 0.75))));
+    pointer-events: none;
+}
+
+.fn-hero__content {
+    position: relative;
+    width: 100%;
+    max-width: var(--fn-hero-content-width, 48rem);
+}
+
+.fn-hero__overline,
+.fn-kicker {
+    margin: 0 0 0.5em;
+    color: var(--fn-kicker-color, inherit);
+    font-size: var(--fn-kicker-size, 0.8rem);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: var(--fn-kicker-transform, uppercase);
+}
+
+.fn-hero__title {
+    margin: 0;
+    font-size: var(--fn-hero-title-size, clamp(2rem, 5vw, 3.25rem));
+    line-height: 1.1;
+    text-wrap: balance;
+}
+
+.fn-hero__lead {
+    margin: 0.75em 0 0;
+    max-width: var(--fn-hero-lead-width, 42rem);
+    font-size: var(--fn-hero-lead-size, 1.1rem);
+    opacity: 0.9;
+}
+
+.fn-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fn-hero-meta-gap, 1.5rem);
+    margin: 1.5em 0 0;
+}
+
+.fn-hero__meta-item dt {
+    font-size: var(--fn-hero-meta-label-size, 0.75rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+.fn-hero__meta-item dd {
+    margin: 0.15em 0 0;
+    font-weight: 600;
+}
+
+/* Section heading -------------------------------------------------------- */
+
+.fn-section-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: var(--fn-section-gap, 1.5rem);
+}
+
+.fn-section-heading__title {
+    margin: 0;
+    font-size: var(--fn-section-title-size, 1.6rem);
+}
+
+.fn-section-heading__description {
+    margin: 0.5em 0 0;
+    max-width: var(--fn-section-description-width, 48rem);
+    color: var(--fn-text-muted, #555);
+}
+
+.fn-section-heading__link {
+    font-weight: 600;
+    color: var(--fn-accent, #0f766e);
+}
+
+/* Card grid -------------------------------------------------------------- */
+
+.fn-card-grid {
+    display: grid;
+    grid-template-columns: var(--fn-card-grid-columns, repeat(auto-fit, minmax(var(--fn-card-min-width, 16rem), 1fr)));
+    gap: var(--fn-card-gap, 1.5rem);
+}
+
+.fn-card-grid--empty {
+    display: none;
+}
+
+.fn-card {
+    background: var(--fn-card-bg, #fff);
+    border: var(--fn-card-border, 1px solid rgb(0 0 0 / 0.1));
+    border-radius: var(--fn-card-radius, 0.75rem);
+    overflow: hidden;
+    transition: transform var(--fn-card-transition, 150ms ease);
+}
+
+.fn-card__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.fn-card__media {
+    aspect-ratio: var(--fn-card-media-aspect, 16 / 10);
+    background: var(--fn-card-media-bg, #e9eaee);
+    overflow: hidden;
+}
+
+.fn-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fn-card__body {
+    padding: var(--fn-card-padding, 1rem 1.1rem 1.2rem);
+}
+
+.fn-card__meta {
+    display: flex;
+    gap: 0.75rem;
+    color: var(--fn-text-muted, #555);
+    font-size: 0.8rem;
+}
+
+.fn-card__title {
+    margin: 0.35em 0 0;
+    font-size: var(--fn-card-title-size, 1.1rem);
+}
+
+.fn-card__description {
+    margin: 0.5em 0 0;
+    color: var(--fn-text-muted, #555);
+    font-size: 0.95rem;
+}
+
+.fn-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.75em 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fn-card__tag {
+    padding: 0.15em 0.6em;
+    border-radius: var(--fn-tag-radius, 999px);
+    background: var(--fn-tag-bg, #eef0f3);
+    font-size: 0.75rem;
+}
+
+/* CTA -------------------------------------------------------------------- */
+
+.fn-cta {
+    display: grid;
+    gap: var(--fn-cta-gap, 1.25rem);
+    padding: var(--fn-cta-pad, 2rem);
+    border-radius: var(--fn-cta-radius, 0.75rem);
+    background: var(--fn-cta-bg, #f2f3f5);
+    color: var(--fn-cta-fg, inherit);
+}
+
+.fn-cta--align-center {
+    justify-items: center;
+    text-align: center;
+}
+
+.fn-cta__title {
+    margin: 0;
+    font-size: var(--fn-cta-title-size, 1.5rem);
+}
+
+.fn-cta__text {
+    margin: 0.5em 0 0;
+    max-width: 42rem;
+}
+
+.fn-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fn-cta--align-center .fn-cta__actions {
+    justify-content: center;
+}
+
+.fn-cta__action {
+    display: inline-block;
+    padding: var(--fn-cta-action-pad, 0.6em 1.2em);
+    border: 1px solid var(--fn-cta-action-border, currentcolor);
+    border-radius: var(--fn-cta-action-radius, 0.4rem);
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.fn-cta__action--primary {
+    background: var(--fn-cta-primary-bg, #17181c);
+    border-color: var(--fn-cta-primary-bg, #17181c);
+    color: var(--fn-cta-primary-fg, #fff);
+}
+
+/* Banner ----------------------------------------------------------------- */
+
+.fn-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: var(--fn-banner-padding, 0.75rem 1.25rem);
+    background: var(--fn-banner-bg, #eef0f3);
+    border-left: var(--fn-banner-accent-width, 4px) solid var(--fn-banner-accent, #0f766e);
+    color: var(--fn-banner-fg, #17181c);
+}
+
+.fn-banner--success {
+    --fn-banner-accent: #15803d;
+    --fn-banner-bg: #e8f5ec;
+}
+
+.fn-banner--warning {
+    --fn-banner-accent: #b45309;
+    --fn-banner-bg: #fdf3e3;
+}
+
+.fn-banner--critical {
+    --fn-banner-accent: #b91c1c;
+    --fn-banner-bg: #fdeaea;
+}
+
+.fn-banner__text {
+    margin: 0;
+    flex: 1 1 auto;
+}
+
+.fn-banner__link {
+    font-weight: 600;
+    color: inherit;
+}
+
+.fn-banner__dismiss {
+    border: 0;
+    background: none;
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fn-card {
+        transition: none;
+    }
+}

@@ -1,0 +1,19 @@
+{{- define "main" -}}
+  {{- $s := partial "fn/strings.html" . -}}
+  {{- $works := where site.RegularPages "Section" "work" -}}
+  {{- partial "fn/page-shell.html" (dict
+    "page" .
+    "hero" (dict
+      "overline" "Fixture"
+      "title" .Title
+      "description" .Description
+    )
+    "banner" (dict
+      "id" "fixture-notice"
+      "text" "Neutral fixture: no brand content, no site identity."
+      "tone" "info"
+      "dismissible" true
+    )
+    "content" (partial "home.html" (dict "works" $works "strings" $s))
+  ) -}}
+{{- end -}}

@@ -1,0 +1,36 @@
+{{- /*
+  Strings / i18n resolver.
+
+  Returns a dict merged in precedence order:
+    1. strings passed to the component call
+    2. site.Params.foundation.strings
+    3. Foundation's English defaults
+
+  Contract: docs/CONTRACTS.md В§4
+  No locale-dependent literal may live anywhere else in this repository.
+*/ -}}
+{{- $defaults := dict
+  "date" "Date"
+  "readMore" "Read more"
+  "openPreview" "Open image preview"
+  "closePreview" "Close image preview"
+  "previewDialogLabel" "Image preview"
+  "videoFallback" "There should have been a video here, but your browser does not seem to support it."
+  "loadGame" "Start loading"
+  "mobileUnsupported" "This content is not supported on mobile devices."
+  "narrowViewportHint" "This content does not resize on smaller browser widths. Try the fullscreen button after loading."
+  "fullscreen" "Fullscreen"
+  "bannerDismiss" "Dismiss"
+  "skipToContent" "Skip to content"
+-}}
+{{- $params := site.Params.foundation | default dict -}}
+{{- $siteStrings := $params.strings | default dict -}}
+{{- $override := dict -}}
+{{- /* Callers may legitimately pass a Page (or nothing) instead of a dict when
+       they only want the site-level strings, so only read `strings` when the
+       context really is a map. */ -}}
+{{- if reflect.IsMap . -}}
+  {{- $override = (index . "strings") | default dict -}}
+{{- end -}}
+{{- return (merge $defaults $siteStrings $override) -}}
+

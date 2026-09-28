@@ -1,0 +1,34 @@
+{{- /*
+  Site-owned composition. The demo decides what the page is made of; the
+  Foundation decides how each piece is rendered. Neither knows about the skin.
+
+  Context: dict with `works` (slice of Page) and `strings`.
+*/ -}}
+{{- $s := .strings -}}
+{{- $works := .works -}}
+
+{{- partial "fn/section-heading.html" (dict
+  "id" "works"
+  "kicker" "Index"
+  "title" "Selected work"
+  "description" "The markup below is identical in every build of this fixture. Only the skin changes."
+  "link" (dict "url" "#cta" "label" "Jump to the call to action")
+  "strings" $s
+) -}}
+
+{{- partial "fn/card-grid.html" (dict
+  "pages" $works
+  "mediaPartial" "card-media.html"
+  "strings" $s
+) -}}
+
+{{- partial "fn/cta.html" (dict
+  "id" "cta"
+  "title" "One View layer, many skins"
+  "text" "Every colour, radius and column count below is a CSS custom property resolved by whichever skin is active."
+  "actions" (slice
+    (dict "label" "Read the contract" "url" "#works" "variant" "primary")
+    (dict "label" "Back to top" "url" "#main" "variant" "secondary")
+  )
+  "strings" $s
+) -}}

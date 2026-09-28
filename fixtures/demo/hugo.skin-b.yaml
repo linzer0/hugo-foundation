@@ -1,0 +1,11 @@
+# Skin override, merged on top of hugo.yaml via `--config hugo.yaml,hugo.skin-b.yaml`.
+#
+# Only the layer that defines a look changes between skins. Everything else —
+# content, layouts, the Foundation itself — stays byte-identical, which is the
+# property the fixture exists to demonstrate.
+theme:
+  - skins/skin-b
+  - ../..
+
+params:
+  skin: skin-b

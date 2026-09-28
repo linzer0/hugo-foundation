@@ -1,0 +1,19 @@
+{{- define "main" -}}
+  {{- $meta := slice -}}
+  {{- if not .Date.IsZero -}}
+    {{- $meta = $meta | append (dict
+      "term" (partial "fn/strings.html" .).date
+      "value" (.Date | time.Format ":date_long")
+      "datetime" (.Date.Format "2006-01-02")) -}}
+  {{- end -}}
+  {{- partial "fn/page-shell.html" (dict
+    "page" .
+    "hero" (dict
+      "overline" .Params.overline
+      "title" .Title
+      "description" .Description
+      "meta" $meta
+    )
+    "content" .Content
+  ) -}}
+{{- end -}}

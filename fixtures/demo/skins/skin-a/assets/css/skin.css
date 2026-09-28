@@ -1,0 +1,110 @@
+/*
+ * Skin A — "precision".
+ *
+ * Dark, tight, technical. Square corners, a multi-column card grid, a
+ * left-aligned hero, and a sans display face. It reaches for the Foundation by
+ * setting --fn-* custom properties and by targeting the documented fn-* class
+ * contract. It never edits a template.
+ */
+
+:root {
+    --fn-content-width: 68rem;
+    --fn-content-padding: 1.5rem;
+
+    --fn-surface: #0e0f12;
+    --fn-text: #e8e9ec;
+    --fn-text-muted: #9aa0aa;
+    --fn-accent: #4fd1c5;
+
+    --fn-hero-bg: #0e0f12;
+    --fn-hero-fg: #f2f3f5;
+    --fn-hero-min-height: 22rem;
+    --fn-hero-overlay: linear-gradient(105deg, rgb(14 15 18 / 0.96) 0%, rgb(14 15 18 / 0.55) 60%, rgb(14 15 18 / 0.85) 100%);
+    --fn-kicker-color: var(--fn-accent);
+    --fn-kicker-transform: uppercase;
+
+    --fn-section-gap: 1.25rem;
+    --fn-section-title-size: 1.35rem;
+
+    --fn-card-min-width: 15rem;
+    --fn-card-gap: 1rem;
+    --fn-card-radius: 0;
+    --fn-card-border: 1px solid #22252b;
+    --fn-card-bg: #14161a;
+    --fn-card-media-bg: #191c21;
+    --fn-card-title-size: 1rem;
+    --fn-card-shadow: none;
+    --fn-tag-bg: #1c2026;
+    --fn-tag-radius: 2px;
+
+    --fn-cta-bg: #14161a;
+    --fn-cta-radius: 0;
+    --fn-cta-pad: 1.75rem;
+    --fn-cta-primary-bg: var(--fn-accent);
+    --fn-cta-primary-fg: #06231f;
+    --fn-cta-action-radius: 0;
+
+    --fn-banner-bg: #14161a;
+    --fn-banner-fg: #e8e9ec;
+    --fn-banner-accent: var(--fn-accent);
+}
+
+.fn-body {
+    margin: 0;
+    background: var(--fn-surface);
+    color: var(--fn-text);
+    font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+    line-height: 1.55;
+}
+
+.fn-shell {
+    background-image:
+        linear-gradient(to right, #ffffff08 1px, transparent 1px),
+        linear-gradient(to bottom, #ffffff08 1px, transparent 1px);
+    background-size: 4rem 4rem;
+}
+
+.fn-hero__title {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.fn-section-heading {
+    border-bottom: 1px solid #22252b;
+    padding-bottom: 0.75rem;
+}
+
+.fn-card:hover {
+    border-color: var(--fn-accent);
+}
+
+.fn-cta {
+    border: 1px solid #22252b;
+}
+
+.fn-banner {
+    border-bottom: 1px solid #22252b;
+    font-size: 0.9rem;
+}
+
+.fn-skip-link {
+    border: 1px solid var(--fn-accent);
+}
+
+/* Demo-owned artwork, styled here without the Foundation knowing it exists. */
+.fixture-art {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(var(--fixture-angle, 45deg), #ffffff0a 0 1px, transparent 1px 12px),
+        hsl(var(--fixture-hue, 180) 32% 14%);
+}
+
+.fixture-art__mark {
+    width: 42%;
+    aspect-ratio: 1;
+    border: 2px solid hsl(var(--fixture-hue, 180) 70% 60%);
+    transform: rotate(calc(var(--fixture-angle, 45deg) / 2));
+}
