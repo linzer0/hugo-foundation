@@ -1,0 +1,4 @@
+{{- $englishSite := index (where .Page.Site.Sites "Language.Lang" "en") 0 -}}
+{{- with $englishSite.GetPage (.Get "page") -}}
+{{- .Content | safeHTML -}}
+{{- end -}}
