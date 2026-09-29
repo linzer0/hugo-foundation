@@ -34,9 +34,40 @@ Gate 3.
 
 ## Add as a theme (consume)
 
+This repository is **private**. The commands below assume you have been granted
+access; without it the clone fails with a 404 rather than a permission error, so
+if you hit that, ask for access (or make the repository public) before debugging
+anything else.
+
 ```bash
 git submodule add https://github.com/linzer0/hugo-foundation.git themes/hugo-foundation
 ```
+
+CI hosts need the same access, and the default checkout will not have it. On
+GitHub Actions, check out without submodules and fetch it with a token:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    submodules: false
+- name: Fetch hugo-foundation submodule
+  env:
+    SUBMODULE_TOKEN: ${{ secrets.SUBMODULE_TOKEN }}
+  run: |
+    git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$SUBMODULE_TOKEN" | base64)" \
+      submodule update --init --recursive
+```
+
+Any other build host — a container image, a PaaS that builds on push — needs its
+own equivalent, and will fail at the clone step rather than at the Hugo step. A
+build host that cannot reach the submodule is the first thing to rule out when a
+consumer's pipeline fails while the theme itself builds fine.
+
+Such a host also needs Hugo Extended 0.167.0 or newer (see **Toolchain**).
+Hosts that ship their own Hugo — Cloudflare's Workers build image defaults to
+0.147.7 — silently fail below that with
+`partial "./strings.html" not found`, which reads like a theme bug and is not
+one.
 
 `hugo.yaml`:
 
