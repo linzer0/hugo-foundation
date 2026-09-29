@@ -74,6 +74,27 @@ is a regression, not an improvement.
 
 ## [Unreleased]
 
+### Changed
+
+- **Minimum Hugo version is now Extended 0.167.0.** The Foundation's partials
+  reference each other relatively (`{{ partial "./strings.html" . }}`), which
+  Hugo resolves only from inside a partial as of 0.167.0
+  ([gohugoio/hugo#15376](https://github.com/gohugoio/hugo/pull/15376)). A
+  consumer still on an older Hugo will not get a degraded build — the build
+  fails with `partial "./…" not found`. There is no shim, by design: a silent
+  fallback to absolute paths would reinstate the coupling this removes.
+
+  Public API is unchanged. Consumers keep calling `partial "fn/hero.html"` and
+  the rest of the documented `fn/**` entry paths; only Foundation's internal
+  calls moved. `emptyPartial` and `mediaPartial` stay absolute on purpose,
+  because they name a partial the caller owns and resolve from the theme root.
+
+  The win is portability: a partial keeps working when the `fn/` tree is
+  renamed, re-parented or mounted differently, because it resolves against the
+  calling partial rather than the theme root. Shadowing still works — a brand
+  theme's `fn/strings.html` wins over the Foundation's under both the old and
+  the new form, verified on a two-theme fixture. See `docs/CONTRACTS.md` §1a.
+
 ### Added
 
 - **Content model layer.** `archetypes/` (`default`, `article`, `note`,
