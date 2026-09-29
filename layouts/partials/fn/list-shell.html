@@ -1,0 +1,67 @@
+{{- /*
+  List shell - the shared section composition for every Foundation content type.
+
+  Contract: docs/CONTENT-MODEL.md §3, §7
+
+  The article list was the only type that shipped a list template, so a section
+  index carrying `type: note` or `type: page` had nothing to render it and the
+  base theme's template was used instead. That is the one place a Foundation
+  site quietly required a base theme, in a repository whose stated property is
+  that it does not. The composition is the same for all three types, so it lives
+  here once and each `layouts/<type>/list.html` is the call.
+
+  Params:
+    page    - the section. Required.
+    prefix  - class prefix for this type's list, e.g. "fn-article-list".
+              Defaults to the article list's, so a caller that omits it gets the
+              markup that existed before this partial.
+    strings - the resolved string set. Optional; resolved here if absent.
+
+  The Page -> card mapping is fn/page-to-card.html, which a consumer shadows to
+  change what a card shows without touching this file.
+*/ -}}
+{{- $page := .page -}}
+{{- $prefix := .prefix | default "fn-article-list" -}}
+{{- $s := .strings | default (partial "./strings.html" $page) -}}
+{{- $pages := $page.RegularPages -}}
+{{- if and (not $pages) $page.IsTranslated -}}
+  {{- range $page.Translations -}}
+    {{- if eq .Lang "en" -}}{{- $pages = .RegularPages -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $paginator := $page.Paginate $pages -}}
+{{- $content := "" -}}
+{{- if $paginator.Pages -}}
+  {{- $cards := "" -}}
+  {{- range $paginator.Pages -}}
+    {{- $card := partial "./page-to-card.html" (dict "page" . "strings" $s) -}}
+    {{- $cards = $cards | printf "%s" (partial "./card.html" (merge $card (dict "strings" $s))) -}}
+  {{- end -}}
+  {{- $content = printf `<div class="%s__grid">%s</div>` $prefix $cards -}}
+{{- else -}}
+  {{- $content = printf `<p class="%s__empty">%s</p>` $prefix $s.emptyList -}}
+{{- end -}}
+{{- $pagination := "" -}}
+{{- if gt $paginator.TotalPages 1 -}}
+  {{- $items := slice -}}
+  {{- with $paginator.Prev -}}
+    {{- $items = $items | append (printf `<a class="fn-pagination__link" href="%s">%s</a>` (.URL | relURL) $s.newer) -}}
+  {{- end -}}
+  {{- with $paginator.Next -}}
+    {{- $items = $items | append (printf `<a class="fn-pagination__link" href="%s">%s</a>` (.URL | relURL) $s.older) -}}
+  {{- end -}}
+  {{- $pagination = printf `<nav class="fn-pagination" aria-label="%s">%s</nav>` $s.paginationLabel (delimit $items "") -}}
+{{- end -}}
+{{- $body := printf `%s%s` $content $pagination -}}
+{{- partial "./page-shell.html" (dict
+    "page" $page
+    "class" $prefix
+    "contentClass" (printf "%s__main" $prefix)
+    "hero" (dict
+        "title" $page.Title
+        "description" $page.Description
+        "overline" ($page.Param "kicker")
+        "strings" $s)
+    "strings" $s
+    "content" (printf "%s" $body | safeHTML)
+) -}}

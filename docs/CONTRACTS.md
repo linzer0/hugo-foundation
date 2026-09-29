@@ -436,6 +436,39 @@ The Foundation may ship `layouts/_default/single.html` and `list.html` that
 delegate here. A consumer may shadow those two files instead of calling the
 partial — see the ordering constraint in §2.
 
+### 7.10 `fn/list-shell.html`
+
+The section-index composition, shared by all three content types. It resolves
+the section's pages (falling back to the English translation's pages when a
+translation has none of its own), paginates them, maps each through
+`fn/page-to-card.html` and `fn/card.html`, and delegates the document to
+`fn/page-shell.html`.
+
+| Param | Type | Default |
+|---|---|---|
+| `page` | Page | required — the section |
+| `prefix` | string | `fn-article-list` — the class prefix for this type |
+| `strings` | dict | resolved here if absent |
+
+Output: the page shell with `class="<prefix>"` and
+`contentClass="<prefix>__main"`, a hero from the section's title, description
+and `kicker`, then either `<div class="<prefix>__grid">` of cards or, when the
+section has no pages, `<p class="<prefix>__empty">` with `strings.emptyList`.
+Pagination is `<nav class="fn-pagination">` with a `__link` per direction, and
+is omitted when the section fits on one page.
+
+Prefixes in use: `fn-article-list`, `fn-note-list`, `fn-page-list`. The grid
+and empty class are per-prefix; the card and pagination classes are shared.
+Custom properties: `--fn-list-columns`, `--fn-list-columns-narrow`,
+`--fn-card-gap`. `--fn-article-list-columns` and
+`--fn-article-list-columns-narrow` remain as fallbacks for overrides written
+before the property was shared.
+
+Shipped prefixes: the article list predates this partial and its markup is
+unchanged by it. The note and page lists are the same composition under their
+own prefixes — before they existed, a section index carrying `type: note` or
+`type: page` had no Foundation template and the base theme rendered it.
+
 ---
 
 ## 8. Shortcode stability

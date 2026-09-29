@@ -242,20 +242,29 @@
     font-size: var(--fn-tag-size, 0.85em);
 }
 
-.fn-article-list__grid {
+/* One grid for all three content types. The column custom property is
+   type-agnostic; --fn-article-list-columns stays as the fallback so a consumer
+   that already overrides it keeps working. */
+.fn-article-list__grid,
+.fn-note-list__grid,
+.fn-page-list__grid {
     display: grid;
-    grid-template-columns: repeat(var(--fn-article-list-columns, 3), minmax(0, 1fr));
+    grid-template-columns: repeat(var(--fn-list-columns, var(--fn-article-list-columns, 3)), minmax(0, 1fr));
     gap: var(--fn-card-gap, 1.5rem);
 }
 
 @media (max-width: 60rem) {
-    .fn-article-list__grid {
-        grid-template-columns: repeat(var(--fn-article-list-columns-narrow, 2), minmax(0, 1fr));
+    .fn-article-list__grid,
+    .fn-note-list__grid,
+    .fn-page-list__grid {
+        grid-template-columns: repeat(var(--fn-list-columns-narrow, var(--fn-article-list-columns-narrow, 2)), minmax(0, 1fr));
     }
 }
 
 @media (max-width: 40rem) {
-    .fn-article-list__grid {
+    .fn-article-list__grid,
+    .fn-note-list__grid,
+    .fn-page-list__grid {
         grid-template-columns: 1fr;
     }
 }

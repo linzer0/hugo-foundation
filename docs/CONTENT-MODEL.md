@@ -223,9 +223,15 @@ The whole extension point, in order:
 1. Add `archetypes/<type>.md` with `type: <type>` set.
 2. Add `layouts/<type>/baseof.html` — copy `article/baseof.html`.
 3. Add `layouts/<type>/single.html` calling `fn/article-shell.html`.
-4. Optionally add `layouts/<type>/list.html` for a section index.
+4. Add `layouts/<type>/list.html` calling `fn/list-shell.html` with this type's
+   class prefix. Not optional: a section index carrying a Foundation `type:`
+   has no other template, so without this the base theme renders it and the
+   Foundation quietly needs one — the property `docs/BASE-THEME.md` §3 says it
+   does not have.
 5. Document the front matter in this file, and the markup in `CONTRACTS.md` §7.
-6. Add one fixture page and run `fixtures/build.ps1 -Update`.
+6. Add one fixture page, and one typed section that exercises the list —
+   a section with a child covers the card grid, an empty one covers
+   `__empty` — then run `fixtures/build.ps1 -Update`.
 
 **Never** add `layouts/_default/single.html` or `layouts/_default/baseof.html`.
 That is the one move that breaks every other page on the consumer's site, and

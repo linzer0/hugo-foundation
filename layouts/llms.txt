@@ -10,10 +10,12 @@
   home". A warning about a missing file trains people to ignore build output,
   and this one was free to remove: the Foundation can render its own llms.txt.
 
-  Removing it did not leave a no-base-theme build silent. That build still warns
-  once, "found no layout file for html for kind section", because no type ships
-  a list.html yet — see docs/BASE-THEME.md §3. The claim that this template was
-  the last warning standing was true of the llms file and wrong about the build.
+  Removing it did leave the no-base-theme build quiet, but only once the
+  section kind stopped warning too: until every content type shipped a
+  list.html, a section index carrying a Foundation `type:` had no template and
+  Hugo warned "found no layout file for html for kind section". Both are fixed —
+  a build that warns about a missing file trains people to ignore build output,
+  and neither warning was load-bearing. See docs/BASE-THEME.md §3.
 
   Emits absolute permalinks, which is the point: a crawler gets resolvable
   URLs. The section walk is recursive, so a site that nests needs no second

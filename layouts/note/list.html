@@ -1,0 +1,13 @@
+{{- /*
+  Note list - the `type: note` section template.
+
+  Contract: docs/CONTENT-MODEL.md §3
+
+  Same composition as the article list, in fn/list-shell.html, under this type's
+  class prefix. Without it a section index carrying `type: note` fell through to
+  the base theme, which is the dependency docs/BASE-THEME.md §3 says the
+  Foundation does not have.
+*/ -}}
+{{- define "main" -}}
+{{- partial "fn/list-shell.html" (dict "page" . "prefix" "fn-note-list") -}}
+{{- end -}}

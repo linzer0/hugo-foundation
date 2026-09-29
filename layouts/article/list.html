@@ -3,52 +3,11 @@
 
   Contract: docs/CONTENT-MODEL.md §3
 
-  Renders the section's own pages through the Foundation card components. The
-  Page -> card mapping is fn/page-to-card.html, which a consumer shadows to
-  change what a card shows without touching this file.
+  The composition lives in fn/list-shell.html and is shared with the note and
+  page types; this file names the class prefix, nothing else. A consumer that
+  wants a different article listing shadows this file or, to change every
+  listing at once, fn/list-shell.html.
 */ -}}
 {{- define "main" -}}
-{{- $s := partial "fn/strings.html" . -}}
-{{- $pages := .RegularPages -}}
-{{- if and (not $pages) .IsTranslated -}}
-  {{- range .Translations -}}
-    {{- if eq .Lang "en" -}}{{- $pages = .RegularPages -}}{{- end -}}
-  {{- end -}}
-{{- end -}}
-{{- $paginator := .Paginate $pages -}}
-{{- $content := "" -}}
-{{- if $paginator.Pages -}}
-  {{- $cards := "" -}}
-  {{- range $paginator.Pages -}}
-    {{- $card := partial "fn/page-to-card.html" (dict "page" . "strings" $s) -}}
-    {{- $cards = $cards | printf "%s" (partial "fn/card.html" (merge $card (dict "strings" $s))) -}}
-  {{- end -}}
-  {{- $content = printf `<div class="fn-article-list__grid">%s</div>` $cards -}}
-{{- else -}}
-  {{- $content = printf `<p class="fn-article-list__empty">%s</p>` $s.emptyList -}}
-{{- end -}}
-{{- $pagination := "" -}}
-{{- if gt $paginator.TotalPages 1 -}}
-  {{- $items := slice -}}
-  {{- with $paginator.Prev -}}
-    {{- $items = $items | append (printf `<a class="fn-pagination__link" href="%s">%s</a>` (.URL | relURL) $s.newer) -}}
-  {{- end -}}
-  {{- with $paginator.Next -}}
-    {{- $items = $items | append (printf `<a class="fn-pagination__link" href="%s">%s</a>` (.URL | relURL) $s.older) -}}
-  {{- end -}}
-  {{- $pagination = printf `<nav class="fn-pagination" aria-label="%s">%s</nav>` $s.paginationLabel (delimit $items "") -}}
-{{- end -}}
-{{- $body := printf `%s%s` $content $pagination -}}
-{{- partial "fn/page-shell.html" (dict
-    "page" .
-    "class" "fn-article-list"
-    "contentClass" "fn-article-list__main"
-    "hero" (dict
-        "title" .Title
-        "description" .Description
-        "overline" (.Param "kicker")
-        "strings" $s)
-    "strings" $s
-    "content" (printf "%s" $body | safeHTML)
-) -}}
+{{- partial "fn/list-shell.html" (dict "page" . "prefix" "fn-article-list") -}}
 {{- end -}}

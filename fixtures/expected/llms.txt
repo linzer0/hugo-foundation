@@ -7,6 +7,10 @@
 - [Typed note](https://fixture.example/journal/typed-note/)
 - [Typed article](https://fixture.example/journal/typed-article/)
 
+# Notes
+
+- [A typed note in a typed section](https://fixture.example/notes/first-note/)
+
 # Work
 
 - [Gamma](https://fixture.example/work/gamma/)

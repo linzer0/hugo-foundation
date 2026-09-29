@@ -58,20 +58,23 @@ looks like a template problem and is not one):
 
 | Build | Pages | Difference |
 |---|---|---|
-| `hugo.yaml` | 10 | — |
-| `+ hugo.with-base-theme.yaml` | 13 | `404.html`, `devlog/index.html`, `devlog/page/1/index.html` |
+| `hugo.yaml` | 12 | — |
+| `+ hugo.with-base-theme.yaml` | 13 | `404.html` |
 
-Ten pages, all Foundation-rendered, in both builds. The three that appear only
-with the base theme are its 404 and the Dev Log section's index and pagination.
+One file: the base theme's 404. All twelve Foundation pages are identical in
+both builds, and the no-base-theme build emits no warnings at all.
 
-The section index is the one to notice. `content/devlog/_index.md` declares
-`type: "page"`, and the Foundation ships no `list.html` for any type, so that
-section has no Foundation template and PaperMod's is used instead. Sections
-whose `_index.md` declares `type: "article"` — `articles`, `notes` — render in
-both builds. So the "a starter that needs a base theme is not a foundation"
-shape holds for every page, and has one real exception: a section index
-carrying a Foundation `type:`. Until a `list.html` ships, that page needs the
-base theme.
+That holds because every content type ships a list template, not just
+`article`. The Foundation's Dev Log section declares `type: "page"`, and
+`content/devlog/_index.md` needs a `list.html` to render at all. While `page`
+had only `single.html` and `baseof.html`, that section index fell through to
+PaperMod — the one page a base-theme-less Foundation could not produce, which
+is precisely the dependency this repository says it does not have. The
+composition now lives in `layouts/partials/fn/list-shell.html` and all three
+types call it, so a fourth is a `list.html` that names a class prefix.
+
+Re-measure after touching templates. The count moved twice here: 10 → 12 when
+`page` gained its list, and the difference shrank from three files to one.
 
 ---
 
