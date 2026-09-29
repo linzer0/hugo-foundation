@@ -82,11 +82,18 @@ $failed = $false
 
 # Every rendered page, not just the home page: the shell, the grid and the
 # single page all exercise different Foundation partials.
-$pages = Get-ChildItem -Recurse -File -Filter '*.html' -Path $referenceRoot |
+# HTML pages, plus the plain-text home output. llms.txt is a template the
+# Foundation ships, so it is compared the same way a page is: the only thing
+# worse than a shipped template nobody renders is one nobody would notice
+# breaking. The fixture declares no static files, so `*.txt` can only be that
+# output.
+$snapshotFilter = @('*.html', '*.txt')
+
+$pages = Get-ChildItem -Recurse -File -Path $referenceRoot -Include $snapshotFilter |
     Sort-Object FullName
 
 if (-not $pages) {
-    Write-Error "no HTML was rendered into $referenceRoot; the build is not exercising the Foundation"
+    Write-Error "nothing was rendered into $referenceRoot; the build is not exercising the Foundation"
 }
 
 # LF, no BOM: the snapshot is compared byte for byte, so it must not depend on
@@ -134,7 +141,7 @@ foreach ($page in $pages) {
 # Nothing may be deleted from the snapshot without the script noticing: a page
 # that stopped rendering is a regression, not a smaller fixture.
 if (-not $Update) {
-    $recordedPages = Get-ChildItem -Recurse -File -Filter '*.html' -Path $expected -ErrorAction SilentlyContinue
+    $recordedPages = Get-ChildItem -Recurse -File -Path $expected -Include $snapshotFilter -ErrorAction SilentlyContinue
     if ($recordedPages) {
         $builtRel = $pages | ForEach-Object { $_.FullName.Substring($referenceRoot.Length).TrimStart('\', '/') }
         $orphan = $recordedPages | ForEach-Object { $_.FullName.Substring($expected.Length).TrimStart('\', '/') } |

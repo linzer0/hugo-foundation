@@ -7,8 +7,13 @@
   PaperMod is optional here. Without one of its own, a Foundation site with no
   base theme declares the `llms` output format in hugo.yaml and gets nothing to
   render it, which Hugo reports as "found no layout file for llms for kind
-  home". That was the only warning a no-base-theme build produced, and a
-  warning about a missing file trains people to ignore build output.
+  home". A warning about a missing file trains people to ignore build output,
+  and this one was free to remove: the Foundation can render its own llms.txt.
+
+  Removing it did not leave a no-base-theme build silent. That build still warns
+  once, "found no layout file for html for kind section", because no type ships
+  a list.html yet — see docs/BASE-THEME.md §3. The claim that this template was
+  the last warning standing was true of the llms file and wrong about the build.
 
   Emits absolute permalinks, which is the point: a crawler gets resolvable
   URLs. The section walk is recursive, so a site that nests needs no second

@@ -78,10 +78,15 @@ failed=0
 pages=()
 while IFS= read -r page; do
     pages+=("$page")
-done < <(find "$reference_root" -name '*.html' -type f | LC_ALL=C sort)
+# HTML pages, plus the plain-text home output. llms.txt is a template the
+# Foundation ships, so it is compared the same way a page is: the only thing
+# worse than a shipped template nobody renders is one nobody would notice
+# breaking. The fixture declares no static files, so `*.txt` can only be that
+# output.
+done < <(find "$reference_root" \( -name '*.html' -o -name '*.txt' \) -type f | LC_ALL=C sort)
 
 [ "${#pages[@]}" -gt 0 ] || {
-    echo "no HTML was rendered into $reference_root; the build is not exercising the Foundation" >&2
+    echo "nothing was rendered into $reference_root; the build is not exercising the Foundation" >&2
     exit 1
 }
 
@@ -118,7 +123,7 @@ done
 # Nothing may be deleted from the snapshot without the script noticing: a page
 # that stopped rendering is a regression, not a smaller fixture.
 if [ "$update" -eq 0 ]; then
-    for recorded in $(cd "$expected" 2>/dev/null && find . -name '*.html' -type f | sed 's|^\./||' | LC_ALL=C sort); do
+    for recorded in $(cd "$expected" 2>/dev/null && find . \( -name '*.html' -o -name '*.txt' \) -type f | sed 's|^\./||' | LC_ALL=C sort); do
         found=0
         for page in "${pages[@]}"; do
             [ "${page#"$reference_root"/}" = "$recorded" ] && { found=1; break; }

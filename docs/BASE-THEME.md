@@ -50,20 +50,28 @@ directory split is the only correct answer, and it is the reason
 
 ## 3. What the base theme actually does
 
-Measured, not assumed. The same content built both ways:
+Measured, not assumed. The same content built both ways, with
+`hugo --source site --config hugo.yaml,hugo.<variant>.yaml --destination <out>`
+(§4 — the config paths are relative to `--source`; get that wrong and Hugo
+silently drops the theme list and the build produces no HTML at all, which
+looks like a template problem and is not one):
 
 | Build | Pages | Difference |
 |---|---|---|
-| `hugo.yaml` | 9 | — |
-| `+ hugo.with-base-theme.yaml` | 10 | `404.html` |
+| `hugo.yaml` | 10 | — |
+| `+ hugo.with-base-theme.yaml` | 13 | `404.html`, `devlog/index.html`, `devlog/page/1/index.html` |
 
-One page. Every starter page declares a Foundation `type:`, so the Foundation
-renders all of them and the base theme is never consulted. PaperMod's
-contribution here is its 404, and nothing else.
+Ten pages, all Foundation-rendered, in both builds. The three that appear only
+with the base theme are its 404 and the Dev Log section's index and pagination.
 
-That is the intended shape: a starter that needs a base theme is not a
-foundation. Turn the base theme on when you add a page that wants PaperMod's
-header, menu and footer, and expect it to stay invisible until you do.
+The section index is the one to notice. `content/devlog/_index.md` declares
+`type: "page"`, and the Foundation ships no `list.html` for any type, so that
+section has no Foundation template and PaperMod's is used instead. Sections
+whose `_index.md` declares `type: "article"` — `articles`, `notes` — render in
+both builds. So the "a starter that needs a base theme is not a foundation"
+shape holds for every page, and has one real exception: a section index
+carrying a Foundation `type:`. Until a `list.html` ships, that page needs the
+base theme.
 
 ---
 

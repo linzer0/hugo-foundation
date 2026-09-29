@@ -1,0 +1,20 @@
+# Foundation Fixture
+
+
+# Journal
+
+- [Typed page](https://fixture.example/journal/typed-page/)
+- [Typed note](https://fixture.example/journal/typed-note/)
+- [Typed article](https://fixture.example/journal/typed-article/)
+
+# Work
+
+- [Gamma](https://fixture.example/work/gamma/)
+- [Beta](https://fixture.example/work/beta/)
+- [Alpha](https://fixture.example/work/alpha/)
+
+# Shortcodes
+
+- [Gallery smoke test](https://fixture.example/shortcodes/gallery/)
+- [Unity WebGL smoke test](https://fixture.example/shortcodes/unity/)
+- [Video smoke test](https://fixture.example/shortcodes/video/)

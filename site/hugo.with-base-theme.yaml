@@ -12,10 +12,13 @@
 # the default chain on purpose: the Foundation's own templates are a complete
 # site, and a starter that requires a base theme is not a foundation.
 #
-# What PaperMod actually contributes, measured: exactly one page, 404.html.
-# Every starter page declares a Foundation `type:`, so the Foundation renders
-# all of them and the base theme is never consulted. Turn it on when you add a
-# page that wants PaperMod's header, menu and footer.
+# What PaperMod actually contributes, measured on the same content: three
+# files. 404.html, plus the Dev Log section's index and pagination — that
+# section's _index.md declares `type: "page"` and the Foundation ships no
+# list.html for any type, so PaperMod's is used instead. All ten
+# Foundation-rendered pages are identical either way. Turn the base theme on
+# when you add a page that wants PaperMod's header, menu and footer, or a
+# section index that declares a Foundation type. See docs/BASE-THEME.md §3.
 #
 # Order matters: the Foundation is declared first so its templates win over
 # PaperMod's at the same path. See docs/CONTRACTS.md §2.

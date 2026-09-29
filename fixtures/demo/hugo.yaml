@@ -25,6 +25,23 @@ disableKinds:
   - rss
   - sitemap
 
+# The Foundation ships layouts/llms.txt so that a site with no base theme still
+# has something to render llms.txt — the alternative is Hugo's "found no layout
+# file for llms for kind home" warning, which the no-base-theme build used to
+# emit. Declaring the format here is what puts that template on the path, and it
+# is what a consumer has to do too. Without this block the fixture never renders
+# llms.txt at all, so the template would be shipped and never verified.
+outputFormats:
+  llms:
+    mediaType: "text/plain"
+    baseName: "llms"
+    isPlainText: true
+    notAlternative: true
+outputs:
+  home:
+    - HTML
+    - llms
+
 params:
   env: fixture
   skin: skin-a
