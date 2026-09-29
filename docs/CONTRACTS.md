@@ -10,6 +10,9 @@ It may keep its brand CSS and overrides in the site itself. A separate brand
 module is optional and useful when multiple sites reuse that same brand layer.
 This document is binding on the Foundation and on every consumer.
 
+Content types, front matter and archetypes are a separate, equally binding
+contract: see `CONTENT-MODEL.md`.
+
 ---
 
 ## 1. What counts as "in contract"
@@ -29,6 +32,43 @@ into a site-specific one.
 
 ---
 
+## 1a. Minimum Hugo version
+
+**Hugo Extended 0.167.0.** §13 is the canonical statement of the supported
+toolchain; this section only records why the floor sits there.
+
+This is a floor, not a preference. Foundation's partials reference each other
+with relative paths (`{{ partial "./strings.html" . }}`), which Hugo only
+resolves from inside a partial as of 0.167.0
+([#15376](https://github.com/gohugoio/hugo/pull/15376)). On 0.146.0 the same
+call fails the build outright:
+
+```
+error calling partial: partial "./strings.html" not found
+```
+
+There is no compatibility shim. A consumer on an older Hugo must upgrade before
+consuming this Foundation; that is deliberate, because a silent fallback to
+absolute paths would reintroduce exactly the coupling relative references
+remove.
+
+### Why relative, and what it does not change
+
+Relative references make the `fn/` tree movable: a partial keeps working after
+the directory is renamed, re-parented or mounted differently, because it
+resolves against the calling partial rather than against the theme root. That is
+the portability win, and it is why the internal calls are worth the version
+bump.
+
+**The public API is untouched.** Consumers keep calling `partial "fn/hero.html"`;
+only Foundation's own internal calls changed. The two partial names that a
+caller supplies at runtime — `emptyPartial` in `fn/card-grid` and
+`mediaPartial` in `fn/page-to-card` — stay absolute on purpose, because they
+name a partial the caller owns and resolves from the theme root, not from
+inside `fn/`.
+
+---
+
 ## 2. Layer resolution (verified)
 
 Hugo resolves a template by walking, in order:
@@ -37,7 +77,7 @@ Hugo resolves a template by walking, in order:
 2. then each theme directory **in the exact order listed under `theme:`**,
 3. first match wins. Templates at the same path are **not** merged.
 
-Verified empirically against Hugo Extended 0.146.0 with a two-theme fixture that
+Verified empirically against Hugo Extended 0.167.0 with a two-theme fixture that
 both define `layouts/_default/single.html`:
 
 | Config | Result |
@@ -53,7 +93,7 @@ first**, not most general first:
 
 ```yaml
 theme:
-  - hugo-foundation  # neutral View layer
+  - hugo-foundation  # neutral View + content-model layer
   - PaperMod         # optional fallback theme
 ```
 
@@ -69,6 +109,14 @@ The consumer fixture enforces the documented order and renders Foundation
 components with fixture-local skins. Consumers should keep this check when
 changing their theme chain; reversing Foundation and its fallback can shadow
 Foundation templates.
+
+**The Foundation now ships page templates**, at `layouts/article/` and
+`layouts/note/`. The corrected order is what makes them visible, but it is not
+what keeps them safe: they are scoped to a `type:`, so they render only the
+pages that opt in with one. A template at `layouts/_default/` would shadow the
+base theme site-wide whatever the order says — that distinction, order makes a
+template reachable and specificity keeps it contained, is why the content types
+live where they do. See `CONTENT-MODEL.md` §3.
 
 ---
 
@@ -427,8 +475,13 @@ The Foundation does not, and will not:
 ## 11. Verification
 
 - `hugo --minify` in the consumer. CI is the authority for build success.
+- `.github/workflows/ci.yml` builds the fixture and runs the neutrality guard
+  on Hugo **Extended 0.167.0** on both `ubuntu-latest` and `windows-latest`. The
+  version and the release checksums are pinned there, so a green run names the
+  exact toolchain that produced it. See §13.
 - `fixtures/build.ps1` (Windows) or `fixtures/build.sh` builds the fixture
-  against every skin and asserts §12.
+  against every skin and asserts §12. Both pass `--panicOnWarning`: a Hugo
+  deprecation notice fails the build instead of scrolling past.
 - `fixtures/neutrality-check.ps1` (Windows) or `fixtures/neutrality-check.sh`
   scans `layouts/` and `assets/` for brand names, analytics IDs, locale
   branching, host asset paths and base-theme selectors.
@@ -473,3 +526,86 @@ than no check:
 > builds produced skin A, and the comparison happily reported success while
 > comparing a build with itself. The pre-normalisation guard and the file
 > existence check exist because of that.
+
+### 12.1 The DOM snapshot
+
+The skin comparison above proves two builds of *today* agree. It cannot notice a
+change that moves both builds together — a partial edited to emit one extra
+attribute fails nothing, because both skins are wrong in the same way.
+
+`fixtures/expected/` closes that hole. It holds the normalised DOM of every
+rendered page, and both build scripts assert against it:
+
+```bash
+bash fixtures/build.sh          # compare
+bash fixtures/build.sh --update # re-record, deliberately
+```
+
+Normalisation removes exactly what may change without the DOM changing: the skin
+stylesheet link, the `data-skin` marker, asset fingerprints and their integrity
+hashes, the Hugo version in the generator meta, and CRLF so a Windows checkout
+and a Linux runner agree. Everything the Foundation emits is compared.
+
+The check is designed to be impossible to pass vacuously:
+
+- A page present in the snapshot but missing from the build **fails**. A page
+  that stopped rendering is a regression, not a smaller fixture.
+- A page missing from the snapshot **fails** until one is recorded, so a new page
+  cannot slip in unasserted.
+- Only `-Update` / `--update` writes the snapshot, and re-recording is a visible
+  diff in review, not a silent reset.
+
+This is what makes a refactor such as the relative-reference conversion in §1a
+provable: the markup after the change is byte-identical to the markup before it,
+and stays that way afterwards.
+
+---
+
+## 13. Supported Hugo version
+
+| | |
+|---|---|
+| **Verified version** | Hugo **Extended 0.167.0** |
+| **Minimum version** | **0.167.0.** Raised by the Foundation's own relative partial references, which resolve only from that version on. See §1a and §13.1 item 9. |
+| **Edition** | Extended, never standard. `gallery` resizes page resources; the non-extended build fails late and confusingly. |
+| **Pinned in** | `.github/workflows/ci.yml`, with release checksums |
+
+The Foundation does not track "whatever Hugo is current". A shared View layer is
+consumed by sites that build for months, so the version is an explicit promise:
+
+- CI installs exactly the version above and asserts the `+extended` suffix.
+- `--panicOnWarning` makes a deprecation a build failure, so a version bump that
+  invalidates a template cannot pass quietly.
+- Raising the minimum is allowed, and is a normal, recorded change. Lowering the
+  promise below what CI pins is not.
+
+### 13.1 Recorded changes, 0.146.0 → 0.167.0
+
+Established by building the fixture **and** a multilingual stand that exercises
+all four shortcodes on both versions, then diffing the rendered output. Items
+marked *consumer* change consumer behaviour and are verified in the consumer, not
+here — this repository deliberately does not build them.
+
+| # | Change | Where it lands | Status |
+|---|---|---|---|
+| 1 | `.Site.Sites` / `.Page.Sites` deprecated in 0.156.0, use `hugo.Sites` | `english-page-content.html` used the old form | **Fixed.** Output byte-identical on 0.167.0, and the new form still resolves on 0.146.0 — forward- and backward-compatible. |
+| 2 | A page title containing `/` now produces a single URL segment instead of a nested one (0.166.0) | *consumer* — content URLs, not Foundation markup | Consumers with slashes in titles must re-check their URLs. |
+| 3 | `languages.<lang>.languageName` deprecated in 0.158.0, use `label` | *consumer* config | Consumers must rename the key. |
+| 4 | Org content is denied by default; opt back in via `security.allowContent` | *consumer* | Only affects sites with Org content. |
+| 5 | `{{ return }}` outside a partial is now an error (was silently ignored) | Foundation | No occurrence; verified by a clean build. |
+| 6 | `transform.ToMath` with `output: html` needs KaTeX ≥ 0.18.4 | *consumer* | The Foundation does no math rendering. |
+| 7 | Alias pages no longer emit `<meta name="robots" content="noindex">` | *consumer* | Anything depending on that tag must be re-checked. |
+| 8 | Image processing output differs, so fingerprinted asset URLs change | both | Benign, but a deploy is not byte-stable across a Hugo bump. Plan for new URLs. |
+| 9 | Relative partial references (`{{ partial "./x.html" }}`) resolve from inside a partial | Foundation `fn/` internals | **Adopted.** The Foundation's own internal calls use them, which is what makes 0.167.0 the minimum. Public `fn/…` entry paths are unchanged. |
+
+### 13.2 What this verification does not cover
+
+The fixture renders **no shortcode at all**. It is a composition of the
+`fn/` partials only, so a green fixture run is evidence about the View layer and
+is silent about `gallery`, `video`, `unity-webgl-player` and
+`english-page-content`.
+
+The 13.1 shortcode findings come from a stand built outside this repository, so
+they are not reproducible from the fixture. Until that changes, a change to
+`layouts/shortcodes/**` is not covered by the local gate — verify it against a
+consumer. Closing that gap is tracked separately.

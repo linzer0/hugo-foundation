@@ -6,7 +6,7 @@
     2. site.Params.foundation.strings
     3. Foundation's English defaults
 
-  Contract: docs/CONTRACTS.md В§4
+  Contract: docs/CONTRACTS.md §4
   No locale-dependent literal may live anywhere else in this repository.
 */ -}}
 {{- $defaults := dict
@@ -22,6 +22,17 @@
   "fullscreen" "Fullscreen"
   "bannerDismiss" "Dismiss"
   "skipToContent" "Skip to content"
+  "publishedOn" "Published"
+  "updatedOn" "Updated"
+  "readingTime" "Reading time"
+  "readingTimeFormat" "%d min read"
+  "tocLabel" "Table of contents"
+  "tocTitle" "On this page"
+  "tagsLabel" "Tags"
+  "paginationLabel" "Pagination"
+  "newer" "Newer"
+  "older" "Older"
+  "emptyList" "Nothing here yet."
 -}}
 {{- $params := site.Params.foundation | default dict -}}
 {{- $siteStrings := $params.strings | default dict -}}

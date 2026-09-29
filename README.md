@@ -4,13 +4,19 @@ Neutral, reusable Hugo foundation shared between Linar's sites (`linar.games` an
 
 This repository provides:
 
+- **Content model** — `archetypes/` and the `article` / `note` content types:
+  what an article is, which front matter it takes, and where it is laid out.
+  See `docs/CONTENT-MODEL.md`.
 - **View components** — `page-shell`, `hero`, `banner`, `section-heading`,
-  `card-grid` / `card`, `cta`, in `layouts/partials/fn/`.
+  `card-grid` / `card`, `cta`, `article-shell` / `article-content`, in
+  `layouts/partials/fn/`.
+- **Page templates** — `layouts/article/`, `layouts/note/`. Type-scoped, so they
+  render only the pages that opt in with `type:` and never shadow a base theme.
 - **Shortcodes** — `gallery`, `video`, `unity-webgl-player`, `english-page-content`.
 - **JS** — `gallery-dialog.js` for lightbox behaviour, `fn-banner.js` for dismissal.
-- **CSS baseline** — `components-base.css`, `shortcodes-base.css` and
-  `accessibility-base.css`. Structural only. Brand-agnostic. Sites layer their
-  own styles on top.
+- **CSS baseline** — `components-base.css`, `prose-base.css`,
+  `shortcodes-base.css` and `accessibility-base.css`. Structural only.
+  Brand-agnostic. Sites layer their own styles on top.
 
 It does not include:
 
@@ -19,8 +25,14 @@ It does not include:
 - Brand styling, logos, or visual identity assets.
 - A complete site shell or required fallback theme. Each consumer chooses its
   own shell and optional fallback theme.
+- Any required brand theme. See `docs/CONTRACTS.md` §2.
 
-`docs/CONTRACTS.md` is the binding public API. Read it before changing anything.
+`docs/CONTRACTS.md` and `docs/CONTENT-MODEL.md` are the binding public API.
+Read them before changing anything. `CHANGELOG.md` records what a consumer has to
+react to when they upgrade.
+
+**Toolchain:** Hugo **Extended 0.167.0**, pinned with checksums in
+`.github/workflows/ci.yml`. See `docs/CONTRACTS.md` §13.
 
 ## The shape of the layer
 
@@ -49,7 +61,7 @@ components take precedence over matching PaperMod templates:
 
 ```yaml
 theme:
-  - hugo-foundation  # neutral View layer
+  - hugo-foundation  # neutral View + content-model layer
   - PaperMod         # optional fallback theme
 ```
 
@@ -69,6 +81,33 @@ Then include the Foundation's CSS from your head partial:
 
 Override or layer brand-specific styles in the consumer site's CSS and layouts.
 
+## Your first article
+
+Once the submodule is wired, a dated, structured article needs no template of
+your own:
+
+```bash
+hugo new --kind bundle posts/my-first-article/index.md
+```
+
+Put a cover image next to `index.md` if you want one. The archetype sets
+`type: article`, and Hugo resolves that to the Foundation's own
+`layouts/article/single.html` and `article/baseof.html`.
+
+Pages that do not set `type:` are untouched by all of this and keep your base
+theme's templates — which is the property that makes it safe to adopt alongside
+an existing site rather than only in a greenfield one.
+
+To restyle without forking, set the `--fn-*` properties; to change what a page
+is made of, shadow `layouts/partials/fn/article-shell.html` in your own
+`layouts/`. Both are covered in `docs/CONTENT-MODEL.md`.
+
+## Upgrading
+
+Pin a tag, move the pointer, run the gates. `CHANGELOG.md` lists what counts as
+a breaking change, including the one that matters most here: a Foundation
+template that widens which pages it renders.
+
 ## The fixture
 
 `fixtures/` is a minimal consumer built against two fixture-local skins. It
@@ -81,7 +120,8 @@ pwsh -File fixtures/build.ps1   # Windows
 bash fixtures/build.sh          # Linux / macOS / CI
 ```
 
-See `fixtures/README.md`.
+CI runs both scripts, plus the neutrality guard, on Linux and Windows against the
+pinned Hugo. See `fixtures/README.md`.
 
 ## Editing rules
 

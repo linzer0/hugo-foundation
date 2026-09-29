@@ -1,0 +1,13 @@
+{{- /*
+  Article single - the `type: article` page template.
+
+  Contract: docs/CONTENT-MODEL.md §3
+
+  Scoped to a type on purpose. A template at `layouts/_default/single.html`
+  would be found before the base theme's and would take over every page on the
+  site, including the ones the Foundation has no business rendering. Pages that
+  do not declare `type: article` keep the base theme's own template.
+*/ -}}
+{{- define "main" -}}
+{{- partial "fn/article-shell.html" (dict "page" .) -}}
+{{- end -}}

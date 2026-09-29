@@ -1,0 +1,55 @@
+{{- /*
+  Article base - the HTML document shell for Foundation-owned content types.
+
+  Contract: docs/CONTENT-MODEL.md §3, docs/CONTRACTS.md §2
+
+  Why this file exists and why it is scoped to a type:
+
+  Hugo resolves baseof for a page the same way it resolves the page template:
+  the most specific match wins, then each theme in `theme:` order. A baseof at
+  `layouts/_default/baseof.html` would therefore be found *before* the base
+  theme's, and would silently replace the base theme's document shell on every
+  page of the site. That is the failure documented in CONTRACTS.md §2.
+
+  Scoping it to `layouts/article/` and `layouts/note/` means the Foundation only
+  supplies the shell for the content types it actually owns. Any page without
+  `type: article` or `type: note` keeps the base theme's own chrome.
+
+  A consumer that wants the Foundation's shell nowhere, or the base theme's
+  shell everywhere, shadows this file in its own `layouts/`. See
+  docs/CONTENT-MODEL.md §3.
+
+  Note on `.Lang`: this reads the page's own language instead of branching on
+  the site locale. Branching on a language to pick a value is what CONTRACTS.md
+  §4 forbids; the `lang` attribute carries no user-visible choice, it is
+  metadata the browser needs.
+*/ -}}
+{{- $lang := .Lang -}}
+{{- $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) -}}
+{{- $description := .Description | default site.Params.description -}}
+<!DOCTYPE html>
+<html lang="{{ $lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ $title }}</title>
+  {{- with $description }}
+  <meta name="description" content="{{ . }}">
+  {{- end }}
+  {{- range .AlternativeOutputFormats -}}
+    {{- range . -}}
+  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+    {{- end -}}
+  {{ end -}}
+  {{- $components := resources.Get "css/components-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $components.RelPermalink }}" integrity="{{ $components.Data.Integrity }}">
+  {{- $prose := resources.Get "css/prose-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $prose.RelPermalink }}" integrity="{{ $prose.Data.Integrity }}">
+  {{- $a11y := resources.Get "css/accessibility-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $a11y.RelPermalink }}" integrity="{{ $a11y.Data.Integrity }}">
+  {{- block "fn-head" . }}{{ end }}
+</head>
+<body class="fn-body">
+  {{- block "main" . }}{{ end }}
+</body>
+</html>

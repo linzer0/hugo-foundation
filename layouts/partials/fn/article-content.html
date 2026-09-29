@@ -1,0 +1,41 @@
+{{- /*
+  Article content - the rendered body of an article, plus an optional TOC.
+
+  Contract: docs/CONTENT-MODEL.md §3
+
+  Kept separate from fn/article-shell.html so a consumer can replace one without
+  the other: shadowing this partial changes how the body is wrapped, while
+  fn/article-shell.html owns the page composition around it.
+
+  Requires: page. Optional: strings.
+
+  TOC depth is not a parameter here. Hugo builds the table of contents from the
+  site's own `markup.tableOfContents` settings, and re-deriving it from
+  .Fragments.Headings would emit a second, divergent copy of that logic for no
+  gain. A consumer sets the depth where Hugo expects it.
+*/ -}}
+{{- $s := partial "./strings.html" . -}}
+{{- $page := .page -}}
+{{- $hasTOC := $page.Param "toc" -}}
+
+{{- if and $hasTOC $page.TableOfContents -}}
+<nav class="fn-toc" aria-label="{{ $s.tocLabel }}">
+  <p class="fn-toc__title">{{ $s.tocTitle }}</p>
+  {{ $page.TableOfContents }}
+</nav>
+{{- end -}}
+
+{{- with $page.Content -}}
+<div class="fn-prose">
+  {{ . }}
+</div>
+{{- end -}}
+
+{{- /* --- tags --- */ -}}
+{{- with $page.Param "tags" -}}
+<ul class="fn-article__tags" aria-label="{{ $s.tagsLabel }}">
+  {{- range . }}
+  <li class="fn-article__tag">{{ . }}</li>
+  {{- end }}
+</ul>
+{{- end -}}

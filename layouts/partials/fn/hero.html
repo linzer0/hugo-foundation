@@ -5,7 +5,7 @@
   The background is delivered as a CSS custom property, so it stays out of the
   accessibility tree and needs no alt.
 */ -}}
-{{- $s := partial "fn/strings.html" . -}}
+{{- $s := partial "./strings.html" . -}}
 {{- $page := .page -}}
 {{- $title := .title | default $page.Title -}}
 {{- $description := .description | default $page.Description -}}

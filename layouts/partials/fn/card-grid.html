@@ -3,7 +3,7 @@
 
   Contract: docs/CONTRACTS.md §7.4
 */ -}}
-{{- $s := partial "fn/strings.html" . -}}
+{{- $s := partial "./strings.html" . -}}
 {{- $ctx := . -}}
 {{- $defaults := .card | default dict -}}
 {{- $mediaPartial := .mediaPartial | default "" -}}
@@ -15,7 +15,7 @@
 {{- $items := .items | default slice -}}
 {{- with .pages -}}
   {{- range . -}}
-    {{- $items = $items | append (partial "fn/page-to-card.html" (dict "page" . "strings" $s "mediaPartial" $mediaPartial)) -}}
+    {{- $items = $items | append (partial "./page-to-card.html" (dict "page" . "strings" $s "mediaPartial" $mediaPartial)) -}}
   {{- end -}}
 {{- end -}}
 
@@ -29,7 +29,7 @@
   {{- range $items -}}
     {{- $card := merge $defaults . -}}
     {{- $card = merge $card (dict "strings" $s "variant" (cond (ne $variant "") $variant "")) -}}
-    {{- partial "fn/card.html" $card }}
+    {{- partial "./card.html" $card }}
   {{- end -}}
 </div>
 {{- else -}}

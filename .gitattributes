@@ -1,3 +1,7 @@
 # Shell scripts must keep LF endings. Git's default checkout on Windows would
 # otherwise write CRLF, and bash on the CI runner would fail on the shebang.
 *.sh text eol=lf
+
+# The DOM snapshots are compared as text, so they must not depend on the
+# platform that checked them out.
+fixtures/expected/** text eol=lf

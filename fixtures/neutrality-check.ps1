@@ -29,9 +29,16 @@ $Baseline = @{
     'accessibility-base.css'  = 'item 7: hardcoded PaperMod selectors; must become an opt-in hook'
 }
 
-$paths = Get-ChildItem -Path (Join-Path $repo 'layouts'), (Join-Path $repo 'assets') -Recurse -File |
-    Where-Object { $_.Extension -in '.html', '.css', '.js' } |
-    ForEach-Object { $_.FullName }
+# archetypes/ is included: an archetype is the starting point for every article
+# on every consumer's site, so a brand name or a site-specific path that leaks
+# into one propagates to everything written after it. .md is scanned there only;
+# layouts/ and assets/ keep their own extension list.
+$paths = @(
+    Get-ChildItem -Path (Join-Path $repo 'layouts'), (Join-Path $repo 'assets') -Recurse -File |
+        Where-Object { $_.Extension -in '.html', '.css', '.js' }
+    Get-ChildItem -Path (Join-Path $repo 'archetypes') -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -in '.md', '.html' }
+) | ForEach-Object { $_.FullName }
 
 $Rules = @(
     @{ Pattern = '\bLinar\b|\blinar\.(games|world)';        Kind = 'hard';  Reason = 'brand name' }

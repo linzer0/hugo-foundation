@@ -1,15 +1,26 @@
-# Build the fixture against every skin and assert the one property the fixture
-# exists to prove: one View layer, byte-identical markup, different styling.
+# Build the fixture against every skin and assert the two properties the fixture
+# exists to prove:
 #
-#   pwsh -File fixtures/build.ps1
-#   bash fixtures/build.sh
+#   1. one View layer  - body markup is byte-identical across skins;
+#   2. a stable DOM    - that markup matches the committed snapshot.
+#
+#   powershell -File fixtures/build.ps1        # Windows PowerShell 5.1
+#   pwsh -File fixtures/build.ps1              # PowerShell 7
+#   powershell -File fixtures/build.ps1 -Update
 #
 # CI is the authority; this script is the local gate.
+
+param(
+    # Re-record fixtures/expected instead of comparing against it. Use only
+    # when a markup change is intended, and read the diff before committing.
+    [switch] $Update
+)
 
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $demo = Join-Path $root 'demo'
+$expected = Join-Path $root 'expected'
 
 $skins = @('skin-a', 'skin-b')
 
@@ -34,25 +45,109 @@ foreach ($skin in $skins) {
     }
     $dest = "public-$skin"
     Write-Host "==> building $skin (--config $config)"
-    & hugo --source $demo --config $config --destination $dest --quiet
+    # --cleanDestinationDir: a page deleted from content/ must not survive as a
+    # stale file in public-*/, or -Update records a snapshot for a page that no
+    # longer renders. Hugo does not clean by default.
+    & hugo --source $demo --config $config --destination $dest --quiet --panicOnWarning --cleanDestinationDir
     if ($LASTEXITCODE -ne 0) {
         Write-Error "hugo failed for $skin"
     }
-    $outputs[$skin] = Join-Path $demo "$dest/index.html"
+    $outputs[$skin] = Join-Path $demo "$dest\index.html"
 }
 
-# Normalise away the two things that are allowed to differ: the skin stylesheet
-# link and the skin marker. Everything else must match exactly.
+# Reduce the rendered page to the part this fixture actually owns: the DOM the
+# Foundation emits. Everything that changes without the DOM changing is
+# normalised away, so the assertion cannot fail for an unrelated reason and
+# cannot pass while the DOM drifts.
+#
+#   - the skin stylesheet link and the data-skin marker are the only two things
+#     a skin is allowed to change;
+#   - asset fingerprints and their integrity hashes change whenever CSS or JS
+#     is edited, which is not a markup change;
+#   - the generator meta carries the Hugo version, which is not this repo's;
+#   - CRLF is dropped so a Windows checkout and a Linux runner agree.
 function Normalize([string]$path) {
-    $lines = Get-Content -LiteralPath $path
-    $kept = $lines | Where-Object { $_ -notmatch 'skin\.min\.' }
-    return ($kept -join "`n") -replace 'data-skin="[^"]*"', 'data-skin="SKIN"'
+    $text = [System.IO.File]::ReadAllText($path)
+    $text = $text -replace '(?m)^[ \t]*<link[^>]*skin\.min\.[^\r\n]*\r?\n?', ''
+    $text = $text -replace 'data-skin="[^"]*"', 'data-skin="SKIN"'
+    $text = $text -replace '\.min\.[0-9a-f]{32,}\.', '.min.HASH.'
+    $text = $text -replace 'integrity="sha256-[^"]*"', 'integrity="sha256-INTEGRITY"'
+    $text = $text -replace 'content="Hugo [^"]*"', 'content="Hugo VERSION"'
+    return ($text -replace "`r", '')
 }
 
 $reference = $skins[0]
+$referenceRoot = Join-Path $demo "public-$reference"
+$failed = $false
+
+# Every rendered page, not just the home page: the shell, the grid and the
+# single page all exercise different Foundation partials.
+$pages = Get-ChildItem -Recurse -File -Filter '*.html' -Path $referenceRoot |
+    Sort-Object FullName
+
+if (-not $pages) {
+    Write-Error "no HTML was rendered into $referenceRoot; the build is not exercising the Foundation"
+}
+
+# LF, no BOM: the snapshot is compared byte for byte, so it must not depend on
+# the platform that recorded it.
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
+foreach ($page in $pages) {
+    $rel = $page.FullName.Substring($referenceRoot.Length).TrimStart('\', '/')
+    $target = Join-Path $expected $rel
+    $actual = Normalize $page.FullName
+
+    if ($Update) {
+        $dir = Split-Path -Parent $target
+        if (-not (Test-Path -LiteralPath $dir)) {
+            New-Item -ItemType Directory -Force -Path $dir | Out-Null
+        }
+        [System.IO.File]::WriteAllText($target, $actual, $utf8NoBom)
+        Write-Host "REC  $rel"
+        continue
+    }
+
+    if (-not (Test-Path -LiteralPath $target)) {
+        Write-Host "FAIL  no snapshot for $rel; run this script with -Update to record one"
+        $failed = $true
+        continue
+    }
+
+    # Normalise the recorded side too, not just the built one. Git's default
+    # checkout on Windows writes CRLF into fixtures/expected/, and comparing
+    # that raw against a normalised build can never match. Normalising both
+    # sides makes the comparison depend on the DOM and nothing else, on every
+    # platform this script runs on.
+    $recorded = Normalize $target
+    if ($recorded -eq $actual) {
+        Write-Host "OK  $rel matches the snapshot"
+    }
+    else {
+        Write-Host "FAIL  $rel diverges from the snapshot"
+        Compare-Object ($recorded -split "`n") ($actual -split "`n") |
+            Select-Object -First 20 | Format-Table -AutoSize
+        $failed = $true
+    }
+}
+
+# Nothing may be deleted from the snapshot without the script noticing: a page
+# that stopped rendering is a regression, not a smaller fixture.
+if (-not $Update) {
+    $recordedPages = Get-ChildItem -Recurse -File -Filter '*.html' -Path $expected -ErrorAction SilentlyContinue
+    if ($recordedPages) {
+        $builtRel = $pages | ForEach-Object { $_.FullName.Substring($referenceRoot.Length).TrimStart('\', '/') }
+        $orphan = $recordedPages | ForEach-Object { $_.FullName.Substring($expected.Length).TrimStart('\', '/') } |
+            Where-Object { $builtRel -notcontains $_.Replace('\', '/') -and $builtRel -notcontains $_ }
+        foreach ($o in $orphan) {
+            Write-Host "FAIL  snapshot contains $o but the build did not render it"
+            $failed = $true
+        }
+    }
+}
+
 $referenceText = Normalize $outputs[$reference]
 $referenceRaw = Get-Content -LiteralPath $outputs[$reference] -Raw
-$failed = $false
 
 foreach ($skin in $skins[1..($skins.Count - 1)]) {
     $raw = Get-Content -LiteralPath $outputs[$skin] -Raw

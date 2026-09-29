@@ -22,6 +22,10 @@ pwsh -File fixtures/build.ps1           # Windows
 bash fixtures/build.sh                  # Linux / macOS / CI
 ```
 
+The scripts pass `--panicOnWarning`: a Hugo deprecation notice fails the build
+rather than scrolling past. Run them with the pinned toolchain, Hugo Extended
+0.167.0 — see `docs/CONTRACTS.md` §13.
+
 Then open `fixtures/demo/public-skin-a/index.html` and
 `fixtures/demo/public-skin-b/index.html` side by side.
 
@@ -59,6 +63,8 @@ demo/
   hugo.yaml             base config; skin A by default
   hugo.skin-b.yaml      override merged with --config hugo.yaml,hugo.skin-b.yaml
   content/              placeholder entries, no real content
+    work/               plain pages: the demo's own templates render these
+    journal/            typed pages: the Foundation's article/note templates
   layouts/              site-owned composition: what the page is made of
   partials/
     home.html           the page composition, calling Foundation partials
@@ -67,6 +73,18 @@ demo/
     skin-a/assets/css/skin.css
     skin-b/assets/css/skin.css
 ```
+
+## What the two sections prove
+
+`work/` holds plain pages with no `type:`. `journal/` holds pages that declare
+`type: article` and `type: note`.
+
+The distinction is the point, and the DOM snapshot in `expected/` is what keeps
+it honest. If a Foundation template ever widened beyond the pages that opted in —
+by moving to `layouts/_default/`, say — the `work/` and home-page snapshots
+would change, and the build would fail. That is the regression this layout
+exists to catch: a silent, site-wide hijack that no other check would notice.
+See `docs/CONTENT-MODEL.md` §3.
 
 `layouts/` is the **site** layer: it decides what the page contains. The
 **Foundation** decides how each piece renders. The **skin** decides what it

@@ -1,0 +1,94 @@
+{{- /*
+  Article shell - the shared page composition for every Foundation content type.
+
+  Contract: docs/CONTENT-MODEL.md §3
+
+  This partial owns the *composition decision* (what an article page is made of
+  and in what order). The Foundation components own the rendering of each piece.
+  That split is what lets a consumer restyle an article through `--fn-*`
+  without editing a template, and restyle a whole section by shadowing this
+  one partial.
+
+  Every value is a parameter. Each front-matter key this contract defines is
+  read through a named param, so a consumer can override the whole decision
+  without forking the template:
+
+    dateFormat   - layout string for dates, overridable per language
+    class        - extra class on the shell
+    contentClass - extra class on <main>
+
+  Requires: page. Optional: everything above, plus strings.
+*/ -}}
+{{- $s := partial "./strings.html" . -}}
+{{- $page := .page -}}
+{{- /* Date format: explicit param, then the consumer's own setting, then
+       Hugo's :date_long. The last one is locale-aware, so a bilingual site
+       gets correct dates per language without anyone configuring anything —
+       a hardcoded "2 January 2006" here would render English dates on every
+       language. site.Params.foundation may be absent, hence the default dict. */ -}}
+{{- $fnParams := site.Params.foundation | default dict -}}
+{{- $dateFormat := .dateFormat | default ($fnParams.dateFormat | default ":date_long") -}}
+{{- $class := .class | default "" -}}
+{{- $contentClass := .contentClass | default "" -}}
+
+{{- /* --- meta row: only what the page actually declares. No invented fields. --- */ -}}
+{{- $meta := slice -}}
+{{- /* `time.Format`, not the .Format method: the method takes a Go layout and
+       would print a Hugo layout like ":date_long" out literally. */ -}}
+{{- if not $page.Date.IsZero -}}
+  {{- $meta = $meta | append (dict
+        "term" $s.publishedOn
+        "value" ($page.Date | time.Format $dateFormat)
+        "datetime" ($page.Date.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
+{{- $updated := $page.Param "updated" -}}
+{{- if and $updated (gt ($updated.Unix) $page.Date.Unix) -}}
+  {{- $meta = $meta | append (dict
+        "term" $s.updatedOn
+        "value" ($updated | time.Format $dateFormat)
+        "datetime" ($updated.Format "2006-01-02T15:04:05Z07:00")) -}}
+{{- end -}}
+{{- if ne ($page.Param "readingTime") false -}}
+  {{- $meta = $meta | append (dict
+        "term" $s.readingTime
+        "value" (printf $s.readingTimeFormat $page.ReadingTime)) -}}
+{{- end -}}
+
+{{- /* --- cover: a page-bundle resource, never a host-root path. --- */ -}}
+{{- $cover := $page.Param "cover" -}}
+{{- $coverName := "" -}}
+{{- if reflect.IsMap $cover -}}
+  {{- $coverName = $cover.image | default "" -}}
+{{- else -}}
+  {{- $coverName = $cover | default "" -}}
+{{- end -}}
+{{- with $coverName -}}
+  {{- with $page.Resources.GetMatch . -}}
+    {{- $coverName = .RelPermalink -}}
+  {{- else -}}
+    {{- $coverName = . | relURL -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $overline := $page.Param "overline" -}}
+{{- with $page.Param "kicker" -}}{{- $overline = . -}}{{- end -}}
+
+{{- $hero := dict
+      "title" $page.Title
+      "description" $page.Description
+      "overline" $overline
+      "meta" $meta
+      "strings" $s -}}
+{{- with $coverName -}}{{- $hero = merge $hero (dict "image" .) -}}{{- end -}}
+
+{{- partial "./page-shell.html" (dict
+      "page" $page
+      "hero" $hero
+      "banner" ($page.Param "banner" | default dict)
+      "class" (printf "fn-article%s" (cond (ne $class "") (printf " %s" $class) ""))
+      "contentClass" (printf "fn-article__main%s" (cond (ne $contentClass "") (printf " %s" $contentClass) ""))
+      "strings" $s
+      "content" (partial "./article-content.html" (dict
+          "page" $page
+          "strings" $s))
+) -}}

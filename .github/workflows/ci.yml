@@ -1,0 +1,105 @@
+name: ci
+
+# The Foundation ships no build of its own. This workflow builds the fixture
+# and asserts the two properties that make the Foundation a reusable View layer,
+# on the exact Hugo version documented in docs/CONTRACTS.md §13.
+#
+# The toolchain is a matrix entry, not a loose variable, so the version and the
+# two checksums can never drift apart: bumping the version without refreshing
+# the checksums fails the download step. `matrix` is also the only context
+# available to `jobs.<id>.name`, which is why the pin lives here.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fixture:
+    name: Hugo ${{ matrix.hugo }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        # Checksums published at
+        # https://github.com/gohugoio/hugo/releases/download/v0.167.0/hugo_0.167.0_checksums.txt
+        include:
+          - hugo: '0.167.0'
+            hugo_sha256_linux: '0163f5c3deddac1f494a1629ddc40c65d18de9d5794facd98f7f96ac2c7d8957'
+            hugo_sha256_windows: 'b04cdf0ae9098fe093ea90e1bd778d21649d71f55914d267aa60aa80b59074e0'
+    env:
+      HUGO_VERSION: ${{ matrix.hugo }}
+      HUGO_SHA256_LINUX: ${{ matrix.hugo_sha256_linux }}
+      HUGO_SHA256_WINDOWS: ${{ matrix.hugo_sha256_windows }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Extended is required, not optional: the gallery shortcode resizes page
+      # resources, and the fixture would fail late and confusingly on the
+      # non-extended build. The step below asserts the +extended suffix.
+      - name: Install Hugo Extended (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="hugo_extended_${HUGO_VERSION}_linux-amd64.tar.gz"
+          url="https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/${archive}"
+          curl -fsSL "$url" -o "$archive"
+          echo "${HUGO_SHA256_LINUX}  ${archive}" | sha256sum --check --status -
+          mkdir -p "${RUNNER_TEMP}/hugo"
+          tar -xzf "$archive" -C "${RUNNER_TEMP}/hugo"
+          echo "${RUNNER_TEMP}/hugo" >> "${GITHUB_PATH}"
+
+      - name: Install Hugo Extended (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = "hugo_extended_$($env:HUGO_VERSION)_windows-amd64.zip"
+          $url = "https://github.com/gohugoio/hugo/releases/download/v$($env:HUGO_VERSION)/$archive"
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $actual = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $env:HUGO_SHA256_WINDOWS) {
+            throw "checksum mismatch for ${archive}: expected $($env:HUGO_SHA256_WINDOWS), got ${actual}"
+          }
+          $target = Join-Path $env:RUNNER_TEMP 'hugo'
+          Expand-Archive -Path $archive -DestinationPath $target -Force
+          ($target -replace '\\', '/') | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      # A green run must name the toolchain that produced it. A runner that
+      # picked up a different Hugo, or a non-extended build, fails here.
+      - name: Assert the pinned version
+        shell: bash
+        run: |
+          hugo version
+          hugo version | grep -q "v${HUGO_VERSION}.*+extended" || {
+            echo "expected Hugo v${HUGO_VERSION} extended, got: $(hugo version)" >&2
+            exit 1
+          }
+
+      # The fixture is the regression gate for the View layer: the same markup
+      # across skins, the Foundation stylesheet untouched by the skin choice,
+      # and a committed DOM snapshot. It runs with --panicOnWarning.
+      - name: Fixture build (Linux)
+        if: runner.os == 'Linux'
+        run: bash fixtures/build.sh
+
+      - name: Fixture build (Windows)
+        if: runner.os == 'Windows'
+        run: pwsh -File fixtures/build.ps1
+
+      # A Foundation that has picked up a brand name, an analytics ID or another
+      # theme's selector has broken R1 and R4 even if the build is green.
+      - name: Neutrality guard (Linux)
+        if: runner.os == 'Linux'
+        run: bash fixtures/neutrality-check.sh
+
+      - name: Neutrality guard (Windows)
+        if: runner.os == 'Windows'
+        run: pwsh -File fixtures/neutrality-check.ps1
