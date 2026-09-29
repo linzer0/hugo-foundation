@@ -76,8 +76,9 @@ looks like. Each layer only knows about the one below it.
 
 The fixture sets `themesDir: "."` so it can reach two things at once: the skin
 sitting beside the site, and the Foundation two directories up. A real consumer
-uses a git submodule under `themes/` instead — `linzer0.github.io` does exactly
-that. The fixture cannot use a submodule, so it points at the checkout.
+can use a git submodule under `themes/`. The fixture cannot use a submodule, so
+it points at this checkout. Its two skins are fixture-local examples; Foundation
+does not require a separate brand theme.
 
 The theme list is ordered most specific first, per `docs/CONTRACTS.md` §2:
 
