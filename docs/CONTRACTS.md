@@ -608,4 +608,5 @@ is silent about `gallery`, `video`, `unity-webgl-player` and
 The 13.1 shortcode findings come from a stand built outside this repository, so
 they are not reproducible from the fixture. Until that changes, a change to
 `layouts/shortcodes/**` is not covered by the local gate — verify it against a
-consumer. Closing that gap is tracked separately.
+consumer. Closing that gap is tracked in
+[#6](https://github.com/linzer0/hugo-foundation/issues/6).

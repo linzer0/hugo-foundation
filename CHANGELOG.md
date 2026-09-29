@@ -77,6 +77,8 @@ is a regression, not an improvement.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-29
+
 ### Changed
 
 - **Minimum Hugo version is now Extended 0.167.0.** The Foundation's partials
