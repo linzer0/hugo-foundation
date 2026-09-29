@@ -5,9 +5,10 @@ Public API of the Hugo Foundation. Implements step 1 of
 data, slots, parameters, accessibility guarantees and override points of every
 layout and component the Foundation exposes.
 
-A consumer is either the **brand theme** (`linar-games-theme`) or the **site**
-(the repository that owns `hugo.yaml`, content and deployment). This document is
-binding on the Foundation and on every consumer.
+A consumer is the site that owns `hugo.yaml`, content, identity and deployment.
+It may keep its brand CSS and overrides in the site itself. A separate brand
+module is optional and useful when multiple sites reuse that same brand layer.
+This document is binding on the Foundation and on every consumer.
 
 ---
 
@@ -45,27 +46,29 @@ both define `layouts/_default/single.html`:
 | `theme: [B, A]` | B wins |
 | project `layouts/` + `theme: [A, B]` | project wins |
 
-### Required chain
+### Recommended consumer chain
 
 Because the first declaration wins, the chain is declared **most specific
 first**, not most general first:
 
 ```yaml
 theme:
-  - linar-games-theme   # brand layer
-  - hugo-foundation     # neutral View layer
-  - PaperMod            # base theme
+  - hugo-foundation  # neutral View layer
+  - PaperMod         # optional fallback theme
 ```
+
+Project-level `layouts/` take precedence over all themes. A reusable consumer
+brand module may appear before Foundation, but it is optional and is not part of
+Foundation's dependency contract. A consumer may use Foundation without
+PaperMod when it supplies the rest of its own site templates.
 
 The same rule governs Hugo Modules: `module.imports` and `module.mounts` place
 directories into the same ordered lookup, so module order equals theme order.
 
-> **Known defect — `hugo.yaml:4-6` in the consumer.** The site currently declares
-> `theme: [PaperMod, hugo-foundation]`, which is inverted. It works today only
-> because the Foundation ships no `layouts/` at all. The moment Foundation gains
-> a `single.html` or any `_default/` template, PaperMod's copy shadows it. The
-> order must be flipped in the same change that introduces Foundation layouts —
-> not after, or the first Foundation layout silently never renders.
+The consumer fixture enforces the documented order and renders Foundation
+components with fixture-local skins. Consumers should keep this check when
+changing their theme chain; reversing Foundation and its fallback can shadow
+Foundation templates.
 
 ---
 
@@ -131,14 +134,16 @@ is a parameter too.
 Foundation's CSS expresses everything that may differ between brands through
 `--fn-*` custom properties. It ships structural defaults — positioning,
 stacking, minimum sizes, focus behaviour, reduced motion — and **no color values**
-beyond neutral fallbacks on generic properties. The brand layer supplies color.
+beyond neutral fallbacks on generic properties. Consumer brand styles supply
+color, either in the site itself or in an optional reusable brand module.
 
 Four override mechanisms, in increasing cost and decreasing portability:
 
 1. **CSS custom properties** — preferred, no template edits, survives upgrades.
 2. **Class-name skinning** in the brand stylesheet, targeting the documented
    class contract.
-3. **Shadowing a Foundation partial** at the same path inside the brand theme.
+3. **Shadowing a Foundation partial** at the same path inside a consumer-owned
+   brand module, when one exists.
    Contract-safe only if the brand partial honours the same output DOM contract
    in §7.
 4. **Site-level override** in the site's own `layouts/`. Highest precedence, but
@@ -397,7 +402,7 @@ issue #20, with the rule it breaks.
 | 10 | `assets/css/shortcodes-base.css:37,67,72,79,141,155` | hardcoded color literals instead of custom properties | §5 |
 | 11 | `layouts/shortcodes/gallery.html:8,19,24` | hardcoded English `aria-label`s, no `strings` parameter | §4 |
 | 12 | `layouts/shortcodes/unity-webgl-player.html:9,12,16` | hardcoded English labels | §4 |
-| 13 | `hugo.yaml:4-6` | `theme:` order inverted against the required chain | §2 |
+| 13 | Consumer `hugo.yaml` | Keep Foundation before any optional fallback theme so its templates are not shadowed | §2 |
 
 Items 1–5 and 11–12 are correctness problems: they are the reason a second
 consumer cannot reuse these components today. Items 6–10 are boundary problems:
@@ -414,7 +419,8 @@ The Foundation does not, and will not:
 - hardcode `baseURL`, menus, author data, or analytics IDs;
 - hardcode another theme's selectors or asset paths;
 - emit locale-dependent literal text;
-- ship PaperMod. PaperMod stays a submodule at each consumer.
+- ship or require PaperMod. A consumer may use PaperMod as a fallback, but
+  Foundation remains usable without it when the consumer supplies its own shell.
 
 ---
 

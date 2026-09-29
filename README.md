@@ -17,7 +17,8 @@ It does not include:
 - Site identity values (base URL, menus, author data, analytics IDs).
 - Authored content, page bundles, or private working material.
 - Brand styling, logos, or visual identity assets.
-- Theme code (PaperMod stays a submodule at each consumer site).
+- A complete site shell or required fallback theme. Each consumer chooses its
+  own shell and optional fallback theme.
 
 `docs/CONTRACTS.md` is the binding public API. Read it before changing anything.
 
@@ -42,20 +43,22 @@ Add this repository as a git submodule of your site:
 git submodule add git@github.com:linzer0/hugo-foundation.git themes/hugo-foundation
 ```
 
-Then wire the chain into `hugo.yaml`, **most specific first**:
+Then wire Foundation into `hugo.yaml`. Site-level `layouts/` always take
+precedence. When using PaperMod as a fallback, put Foundation first so its
+components take precedence over matching PaperMod templates:
 
 ```yaml
 theme:
-  - linar-games-theme   # brand layer
-  - hugo-foundation     # neutral View layer
-  - PaperMod            # base theme
+  - hugo-foundation  # neutral View layer
+  - PaperMod         # optional fallback theme
 ```
 
-Order is not cosmetic. Hugo resolves the project `layouts/` first, then each
-theme in the exact order listed here; first match wins and same-path templates
-are not merged. Declaring PaperMod before the Foundation means PaperMod's
-`layouts/` shadow the Foundation's and the first Foundation component silently
-never renders. See `docs/CONTRACTS.md` §2.
+Order is not cosmetic. Hugo resolves the project's `layouts/` first, then each
+theme in the exact order listed; first match wins and same-path templates are
+not merged. A consumer with a reusable brand module may place that optional
+module before Foundation. A single-site brand layer can stay in the consumer's
+own CSS and partials; Foundation does not require a separate brand module. See
+`docs/CONTRACTS.md` §2.
 
 Then include the Foundation's CSS from your head partial:
 
@@ -64,11 +67,12 @@ Then include the Foundation's CSS from your head partial:
 <link rel="stylesheet" href="{{ $components.RelPermalink }}" integrity="{{ $components.Data.Integrity }}">
 ```
 
-Override or layer brand-specific styles in your own theme or site CSS.
+Override or layer brand-specific styles in the consumer site's CSS and layouts.
 
 ## The fixture
 
-`fixtures/` is a minimal site built against two independent skins. It asserts
+`fixtures/` is a minimal consumer built against two fixture-local skins. It
+depends on Foundation only; neither skin is a required external theme. It asserts
 that the rendered body markup is byte-identical across both — proof that one
 View layer is genuinely reusable and not secretly brand-specific.
 
