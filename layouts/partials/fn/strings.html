@@ -43,5 +43,45 @@
 {{- if reflect.IsMap . -}}
   {{- $override = (index . "strings") | default dict -}}
 {{- end -}}
-{{- return (merge $defaults $siteStrings $override) -}}
+{{- /* `merge` cannot be used here. Hugo's merge normalises every key to lower
+       case, and on a case-insensitive collision it stores the incoming
+       (lower-cased) spelling rather than the destination's. The defaults above
+       are camelCase, so the moment a consumer supplies a single string the
+       returned map loses every camelCase key and every caller reads nil.
+
+       The failure is silent and total. With one string set, `publishedOn`,
+       `skipToContent`, `readingTimeFormat` and the rest all resolve to nil:
+       meta terms and the skip link render empty, and `printf` on a nil
+       `readingTimeFormat` aborts the render of every `type: article` page.
+
+       A consumer cannot side-step it by spelling the key correctly: Hugo
+       lower-cases configuration keys too, so `readingTimeFormat:` in
+       hugo.yaml arrives as `readingtimeformat` and collides just the same.
+
+       `Scratch` keeps the map exactly as it was set, so keys retain their
+       spelling and the returned defaults are identical to the ones above.
+       Matching incoming keys against the defaults is case-insensitive, which
+       is what makes a lower-cased config key land on the camelCase default.
+       A key that matches no default is passed through untouched, so a
+       consumer can carry its own string without this resolver dropping it. */ -}}
+{{- $out := newScratch -}}
+{{- range $key, $value := $defaults -}}
+  {{- $out.Set $key $value -}}
+{{- end -}}
+{{- $canonical := "" -}}
+{{- range $key, $value := $siteStrings -}}
+  {{- $canonical = $key -}}
+  {{- range $defaultKey, $_ := $defaults -}}
+    {{- if eq (lower $defaultKey) (lower $key) -}}{{- $canonical = $defaultKey -}}{{- end -}}
+  {{- end -}}
+  {{- $out.Set $canonical $value -}}
+{{- end -}}
+{{- range $key, $value := $override -}}
+  {{- $canonical = $key -}}
+  {{- range $defaultKey, $_ := $defaults -}}
+    {{- if eq (lower $defaultKey) (lower $key) -}}{{- $canonical = $defaultKey -}}{{- end -}}
+  {{- end -}}
+  {{- $out.Set $canonical $value -}}
+{{- end -}}
+{{- return $out.Values -}}
 
