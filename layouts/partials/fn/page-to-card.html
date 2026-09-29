@@ -15,7 +15,7 @@
     imageAlt   -> cover.alt, falling back to the title
     meta       -> date, when the page has one
 */ -}}
-{{- $s := partial "fn/strings.html" . -}}
+{{- $s := partial "./strings.html" . -}}
 {{- $page := .page -}}
 {{- $mediaPartial := .mediaPartial | default "" -}}
 
@@ -41,12 +41,25 @@
   {{- end -}}
 {{- end -}}
 
+{{- /* Date format: the Foundation's own setting first so a card's date matches
+       the date on the article it links to, then the legacy base-theme
+       parameter, then Hugo's locale-aware :date_long. Reading
+       site.Params.DateFormat on its own was an R4 violation — it belongs to
+       the base theme, not to this repository (docs/CONTRACTS.md §9). */ -}}
+{{- $fnParams := site.Params.foundation | default dict -}}
+{{- $dateFormat := $fnParams.dateFormat | default (default ":date_long" site.Params.DateFormat) -}}
+
 {{- $meta := slice -}}
 {{- if not $page.Date.IsZero -}}
   {{- $meta = $meta | append (dict
     "label" $s.date
-    "value" ($page.Date | time.Format (default ":date_long" site.Params.DateFormat))
+    "value" ($page.Date | time.Format $dateFormat)
     "datetime" ($page.Date.Format "2006-01-02")) -}}
+{{- end -}}
+
+{{- $media := "" -}}
+{{- if ne $mediaPartial "" -}}
+  {{- $media = partial $mediaPartial (dict "page" $page) -}}
 {{- end -}}
 
 {{- return (dict
@@ -56,5 +69,5 @@
   "image" $imageURL
   "imageAlt" ($page.Params.cover.alt | default $page.Title)
   "meta" $meta
-  "media" (cond (ne $mediaPartial "") (partial $mediaPartial (dict "page" $page)) "")
+  "media" $media
 ) -}}

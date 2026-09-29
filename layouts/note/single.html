@@ -1,0 +1,12 @@
+{{- /*
+  Note single - the `type: note` page template.
+
+  Contract: docs/CONTENT-MODEL.md §3
+
+  A note is an article without the long-form furniture: no table of contents by
+  default, and the meta row stays compact. It reuses the same composition
+  partial, so a consumer that restyles articles restyles notes for free.
+*/ -}}
+{{- define "main" -}}
+{{- partial "fn/article-shell.html" (dict "page" . "class" "fn-article--note") -}}
+{{- end -}}

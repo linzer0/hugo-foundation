@@ -3,7 +3,7 @@
 
   Contract: docs/CONTRACTS.md §7.9
 */ -}}
-{{- $s := partial "fn/strings.html" . -}}
+{{- $s := partial "./strings.html" . -}}
 {{- $page := .page -}}
 {{- $content := .content -}}
 {{- $class := .class | default "" -}}
@@ -17,10 +17,10 @@
 <div class="fn-shell{{ with $class }} {{ . }}{{ end }}">
   {{- with .beforeContent }}{{ . }}{{ end }}
   {{- with .banner -}}
-    {{- partial "fn/banner.html" (merge (dict "strings" $s) .) -}}
+    {{- partial "./banner.html" (merge (dict "strings" $s) .) -}}
   {{- end }}
   {{- with .hero -}}
-    {{- partial "fn/hero.html" (merge (dict "page" $page "strings" $s) .) -}}
+    {{- partial "./hero.html" (merge (dict "page" $page "strings" $s) .) -}}
   {{- end }}
   <main class="fn-shell__main{{ with $contentClass }} {{ . }}{{ end }}" id="{{ $mainID }}">
     {{- with $content }}{{ . }}{{ end -}}

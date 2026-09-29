@@ -15,7 +15,15 @@ repo="$(dirname "$root")"
 baseline_shortcodes='item 9: /img/ paths resolve against the consumer; must move to component params'
 baseline_access='item 7: hardcoded PaperMod selectors; must become an opt-in hook'
 
-mapfile -t files < <(find "$repo/layouts" "$repo/assets" -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \))
+# archetypes/ is included: an archetype is the starting point for every article
+# on every consumer's site, so a brand name or a site-specific path that leaks
+# into one propagates to everything written after it.
+mapfile -t files < <(
+    find "$repo/layouts" "$repo/assets" -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \)
+    if [ -d "$repo/archetypes" ]; then
+        find "$repo/archetypes" -type f \( -name '*.md' -o -name '*.html' \)
+    fi
+)
 
 hard=0
 known=0

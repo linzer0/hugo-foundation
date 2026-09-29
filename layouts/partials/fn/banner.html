@@ -6,7 +6,7 @@
   `role` is opt-in. A server-rendered banner is static content and must not be a
   live region; pass role: "status" only when the banner is injected dynamically.
 */ -}}
-{{- $s := partial "fn/strings.html" . -}}
+{{- $s := partial "./strings.html" . -}}
 {{- $text := .text -}}
 {{- $tone := .tone | default "info" -}}
 {{- $link := .link | default dict -}}
