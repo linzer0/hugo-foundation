@@ -81,9 +81,18 @@
     transform: translate(-50%, -50%);
 }
 
+/*
+ * Neutral, brand-agnostic base styles for the foundation shortcodes.
+ * Site-specific skins (talk-meta, talk-author, talk-project-grid, case-*)
+ * are layered on top of this file by the consuming site.
+ *
+ * Every image the Foundation needs is drawn in CSS or taken from a custom
+ * property. No url() here points at a path the consumer happens to own:
+ * see docs/CONTRACTS.md §7.8 and §9 item 9.
+ */
+
 .unity-progress-bar-empty,
 .unity-progress-bar-full {
-    width: 141px;
     height: 18px;
     margin-top: 10px;
     background-position: center;
@@ -91,21 +100,55 @@
 }
 
 .unity-progress-bar-empty {
-    background-image: url("/img/progress-bar-empty-dark.png");
+    width: 141px;
+    overflow: hidden;
+    border-radius: var(--fn-unity-progress-radius, 999px);
+    background-color: var(--fn-unity-progress-track, rgba(0, 0, 0, 0.16));
+    background-image: var(--fn-unity-progress-empty-image, none);
 }
 
 .unity-progress-bar-full {
     width: 0;
-    background-image: url("/img/progress-bar-full-dark.png");
+    height: 100%;
+    border-radius: inherit;
+    background-color: var(--fn-unity-progress-fill, var(--fn-unity-accent, currentColor));
+    background-image: var(--fn-unity-progress-full-image, none);
 }
 
 .unity-fullscreen-button {
+    position: relative;
     width: 38px;
     height: 38px;
     margin-bottom: 5px;
     margin-left: 5px;
-    background: url("/img/fullscreen-button.png") no-repeat center;
+    background: var(--fn-unity-fullscreen-image, none) no-repeat center;
     cursor: pointer;
+}
+
+/* Default fullscreen glyph, drawn so the Foundation ships no image at all.
+   A consumer with its own icon sets --fn-unity-fullscreen-image; to keep that
+   icon as the only mark, also set --fn-unity-fullscreen-glyph: transparent. */
+.unity-fullscreen-button::before,
+.unity-fullscreen-button::after {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--fn-unity-fullscreen-glyph, currentColor);
+    content: "";
+}
+
+.unity-fullscreen-button::before {
+    top: 0;
+    left: 0;
+    border-right: 0;
+    border-bottom: 0;
+}
+
+.unity-fullscreen-button::after {
+    right: 0;
+    bottom: 0;
+    border-top: 0;
+    border-left: 0;
 }
 
 .unity-footer {
