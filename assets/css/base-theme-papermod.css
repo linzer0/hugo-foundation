@@ -1,0 +1,42 @@
+/*
+ * Opt-in base-theme adapter: PaperMod.
+ *
+ * NOT part of the neutral baseline. Include it only if this site actually
+ * uses PaperMod as its base theme:
+ *
+ *   {{ with resources.Get "css/base-theme-papermod.css" }}
+ *   {{ $css := . | minify | fingerprint }}
+ *   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+ *   {{ end }}
+ *
+ * It loads after accessibility-base.css and before the brand stylesheet.
+ *
+ * Why a separate file: the Foundation is shared by sites that do not share a
+ * base theme. Naming PaperMod's classes in the neutral baseline made the
+ * coupling invisible and made the Foundation unusable-as-is for a consumer on
+ * a different base. docs/CONTRACTS.md §5, rule 1 still holds: everything
+ * here is reachable through a custom property, so a consumer that wants a
+ * different footer treatment never has to touch this file.
+ */
+
+:root {
+    --fn-footer-text: #54595f;
+}
+
+[data-theme="dark"] {
+    --fn-footer-text: #c7c9cc;
+}
+
+.footer {
+    color: var(--fn-footer-text);
+}
+
+.footer a {
+    color: inherit;
+    border-bottom-color: currentColor;
+}
+
+.footer a:hover {
+    color: var(--primary);
+    border-bottom-color: currentColor;
+}

@@ -1,49 +1,35 @@
 /*
  * Neutral accessibility baseline for the foundation.
+ *
+ * This file names no base theme. It applies to Foundation's own `fn-*` hooks
+ * and to generic elements, and nothing else. Rules that need a specific base
+ * theme live in assets/css/base-theme-*.css, which a consumer includes
+ * deliberately. See docs/CONTRACTS.md §5 and §9 item 7.
+ *
  * Site-specific selectors (.case-*, .runtime-*, .talk-*) belong to the
  * consuming site and should be layered on top of this file.
  */
 
 :root {
-    --site-focus-ring: #0f766e;
-    --site-footer-text: #54595f;
+    --fn-focus-ring: #0f766e;
+    --fn-focus-ring-width: 2px;
+    --fn-focus-ring-offset: 4px;
 }
 
 [data-theme="dark"] {
-    --site-focus-ring: #53eeea;
-    --site-footer-text: #c7c9cc;
-}
-
-.footer {
-    color: var(--site-footer-text);
-}
-
-.footer a {
-    color: inherit;
-    border-bottom-color: currentColor;
-}
-
-.footer a:hover {
-    color: var(--primary);
-    border-bottom-color: currentColor;
+    --fn-focus-ring: #53eeea;
 }
 
 :where(a, button, [role="button"], input, select, textarea, summary):focus-visible {
-    outline: 2px solid var(--site-focus-ring);
-    outline-offset: 4px;
+    outline: var(--fn-focus-ring-width) solid var(--fn-focus-ring);
+    outline-offset: var(--fn-focus-ring-offset);
     border-radius: 4px;
-}
-
-#theme-toggle:focus-visible,
-.top-link:focus-visible {
-    outline: 2px solid var(--site-focus-ring);
-    outline-offset: 4px;
 }
 
 .gallery-item:focus-visible,
 .gallery-dialog__close:focus-visible {
-    outline: 2px solid var(--site-focus-ring);
-    outline-offset: 4px;
+    outline: var(--fn-focus-ring-width) solid var(--fn-focus-ring);
+    outline-offset: var(--fn-focus-ring-offset);
 }
 
 @media (prefers-reduced-motion: reduce) {
