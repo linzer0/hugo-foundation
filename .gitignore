@@ -4,9 +4,22 @@ public-*/
 resources/_gen/
 .hugo_build.lock
 
+# The site's build output and scratch destinations. `hugo --source site
+# --destination <dir>` puts <dir> inside site/ when given a bare name, so the
+# Hugo patterns above do not cover it. These were committed once already
+# (090d87e carried site/tmp-site/ and site/tmp-site-pm/, 46 files of generated
+# HTML, CSS and JS); the rules below exist so that cannot happen twice.
+site/public/
+site/public-*/
+site/tmp-*/
+tmp-*/
+
 # OS / editor
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-*.swp
+*.swp/site/tmp-*/
+/site/public/
+/site/public-*/
+/site/resources/
