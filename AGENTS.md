@@ -5,6 +5,7 @@
 - This repository is both a theme and a working site. The theme (layouts, assets, archetypes, neutral CSS, JS) is what consumers inherit. The site (`site/`) is a runnable starter wired to that theme, used as the Foundation's own demo and as a CI gate. See `docs/BASE-THEME.md`.
 - A theme's `hugo.yaml` is merged into every consuming build, and its `content/` is mounted into the consuming site — both verified against Hugo Extended 0.167.0. There is no opt-out. Site material therefore lives in `site/`, never at the repository root.
 - `themes/PaperMod` is a submodule and the optional base theme of `site/` only. Consumers who add Foundation as a theme never get PaperMod unless they put it in their own `theme:` list.
+- This repository is private by decision, not by oversight. Do not propose making it public, and do not assume third-party consumption when scoping work. Every build host outside this repository therefore needs two things this repository cannot give it: Hugo Extended 0.167.0 or newer, and its own access token for the private submodule.
 - This repository contains no site identity values, brand styling, or analytics IDs.
 
 ## Contracts
