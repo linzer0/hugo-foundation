@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" data-skin="SKIN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery smoke test</title>
+  <link rel="stylesheet" href="/css/components-base.min.HASH.css" integrity="sha256-INTEGRITY">
+</head>
+<body class="fn-body">
+  <a class="fn-skip-link" href="#main">Skip to content</a><div class="fn-shell"><header class="fn-hero fn-hero--align-start">
+  <div class="fn-hero__shade" aria-hidden="true"></div>
+  <div class="fn-hero__content">
+    <h1 class="fn-hero__title">Gallery smoke test</h1>
+    <p class="fn-hero__lead">Exercises the gallery shortcode against a single page resource.</p>
+  </div>
+</header>
+  <main class="fn-shell__main" id="main"><p>A page bundle with one image. The <code>gallery</code> shortcode matches it through
+<code>.Page.Resources.Match</code> and resizes it through Hugo Extended&rsquo;s image pipeline.</p>
+
+<div class="gallery-container">
+    
+</div><dialog class="gallery-dialog" data-gallery-dialog aria-label="Image preview">
+    <figure class="gallery-dialog__figure">
+        <img class="gallery-dialog__image" data-gallery-dialog-image alt="">
+        <figcaption class="gallery-dialog__caption" data-gallery-dialog-caption></figcaption>
+    </figure>
+    <button class="gallery-dialog__close" type="button" data-gallery-dialog-close aria-label="Close image preview">&times;</button>
+</dialog><script defer src="/js/gallery-dialog.min.HASH.js" integrity="sha256-INTEGRITY"></script>
+</main>
+</div>
+
+  <script defer src="/js/fn-banner.min.HASH.js" integrity="sha256-INTEGRITY"></script>
+</body>
+</html>

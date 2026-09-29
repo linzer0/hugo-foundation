@@ -77,6 +77,8 @@ is a regression, not an improvement.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-29
+
 The Foundation is now a site as well as a theme. Clone it and `hugo server
 --source site` gives you a working article site; add it as a submodule and you
 get the same View layer underneath your own content.
@@ -84,9 +86,9 @@ get the same View layer underneath your own content.
 ### Added
 
 - **`site/` — the Foundation's own site.** A home page, an articles section, a
-  notes section and an about page, wired to the Foundation as its own theme.
-  This is what makes the repository a starting point rather than a directory of
-  partials. It builds with no base theme at all.
+  notes section, a Dev Log entry and an about page, wired to the Foundation as
+  its own theme. This is what makes the repository a starting point rather
+  than a directory of partials. It builds with no base theme at all.
 - **A `page` content type** — `layouts/page/single.html` and
   `layouts/page/baseof.html`, plus `archetypes/page.md`. About, contact and
   colophon pages have no honest home in `article` or `note`, and without a
@@ -101,11 +103,34 @@ get the same View layer underneath your own content.
   head did not have to be, and three copies of a stylesheet list is three
   places to forget a file.
 - **`themes/PaperMod` as a submodule** — the optional base theme for `site/`
-  only, enabled by `site/hugo.with-base-theme.yaml`. Off by default.
-- **`docs/BASE-THEME.md`** and **`docs/LOCALIZATION.md`**.
+  only, enabled by `site/hugo.with-base-theme.yaml`. Off by default. Consumers
+  who add Foundation as a theme never see it.
+- **Dev Log as a usage pattern of `note`.** `archetypes/devlog.md` generates a
+  `type: note` with a `version` field, a `changes` list, and the `devlog`
+  tag pre-stamped; `docs/DEV-LOG.md` records the convention. The Foundation
+  does not render `changes` itself — a consumer extends the list with their
+  own keys rather than asking for a new template. A starter entry under
+  `site/content/devlog/` exercises it.
+- **Shortcode smoke coverage in the fixture.** Fixture pages under
+  `fixtures/demo/content/shortcodes/` exercise `gallery`, `video` and
+  `unity-webgl-player` at template level, so a parsing or markup regression
+  in a shortcode now fails the local gate. Visual fidelity (Unity builds,
+  multilingual stands) is the half the gate cannot bridge; see
+  `docs/CONTRACTS.md` §13.2 and
+  [#6](https://github.com/linzer0/hugo-foundation/issues/6).
+- **`docs/BASE-THEME.md`, `docs/LOCALIZATION.md`, `docs/DEV.md`, `docs/DEV-LOG.md`.**
 
 ### Fixed
 
+- **PR #9: `merge` in `fn/strings.html` normalised every key to lower case**
+  and stored the lower-cased spelling on collision. The defaults above are
+  camelCase, so the moment a consumer supplied a single string the returned
+  map lost every camelCase key and every caller read nil. Replaced `merge`
+  with a `Scratch`-based resolver that matches incoming keys against the
+  defaults case-insensitively, so a lower-cased configuration key still lands
+  on the camelCase default, and a key that matches no default is passed
+  through untouched. Verified against the fixture and against
+  `linzer0.github.io`.
 - **`note` pages rendered nothing without a base theme.** `note/single.html`
   existed with no baseof to pair it, so a note page resolved its content
   template and then found no document shell. The fixture never caught it: the
@@ -148,27 +173,6 @@ get the same View layer underneath your own content.
 - **`--config` paths are relative to `--source`.** Written as
   `--config site/hugo.yaml,…` Hugo finds neither file, falls back to defaults,
   drops the theme list with them, and reports "no layout file" for every kind.
-
-### Added
-
-- **Dev Log as a usage pattern of `note`.** `archetypes/devlog.md` generates a
-  `type: note` with a `version` field, a `changes` list, and the `devlog`
-  tag pre-stamped; `docs/DEV-LOG.md` records the convention. The Foundation
-  does not render `changes` itself — a consumer extends the list with their
-  own keys rather than asking for a new template. A starter entry under
-  `site/content/devlog/` exercises it.
-
-### Fixed
-
-- **PR #9: `merge` in `fn/strings.html` normalised every key to lower case**
-  and stored the lower-cased spelling on collision. The defaults above are
-  camelCase, so the moment a consumer supplied a single string the returned
-  map lost every camelCase key and every caller read nil. Replaced `merge`
-  with a `Scratch`-based resolver that matches incoming keys against the
-  defaults case-insensitively, so a lower-cased configuration key still lands
-  on the camelCase default, and a key that matches no default is passed
-  through untouched. Verified against the fixture and against
-  `linzer0.github.io`.
 
 ### Breaking for consumers
 

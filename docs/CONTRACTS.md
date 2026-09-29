@@ -649,13 +649,22 @@ here — this repository deliberately does not build them.
 
 ### 13.2 What this verification does not cover
 
-The fixture renders **no shortcode at all**. It is a composition of the
-`fn/` partials only, so a green fixture run is evidence about the View layer and
-is silent about `gallery`, `video`, `unity-webgl-player` and
-`english-page-content`.
+The fixture exercises each shortcode at template level: `gallery` against a
+real page bundle, `video` and `unity-webgl-player` with stub params, and the
+section landing is a regular page. A green fixture run therefore asserts that
+the shortcode templates still parse, still link the stylesheet, and still emit
+the markup the snapshot recorded.
 
-The 13.1 shortcode findings come from a stand built outside this repository, so
-they are not reproducible from the fixture. Until that changes, a change to
-`layouts/shortcodes/**` is not covered by the local gate — verify it against a
-consumer. Closing that gap is tracked in
+It does **not** assert visual fidelity. `gallery` rendering depends on real
+images and on the page-resource pipeline that a multilingual stand cannot
+reproduce cheaply, and `unity-webgl-player` rendering depends on a real Unity
+WebGL build. Those are the gap that the gate cannot bridge.
+
+Multilingual coverage for `english-page-content` follows in v0.3.0. Until
+then, verify any change to `english-page-content.html` against a consumer that
+runs more than one language.
+
+The 13.1 shortcode findings were originally established from a stand built
+outside this repository, so they were not reproducible from the fixture. The
+template-level coverage closes that half; the visual half is tracked in
 [#6](https://github.com/linzer0/hugo-foundation/issues/6).

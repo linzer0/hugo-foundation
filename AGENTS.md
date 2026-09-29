@@ -44,7 +44,8 @@ Partials in `layouts/partials/fn/`. Each takes a single dict and is documented i
 ## Content model
 
 The layer that answers "what is an article", as opposed to "how does it render".
-Binding contract: `docs/CONTENT-MODEL.md`.
+Binding contract: `docs/CONTENT-MODEL.md`. How to develop the layer itself
+lives in `docs/DEV.md`.
 
 - `archetypes/` — `default`, `article`, `note`, `page`, `devlog`, `bundle`. `devlog` is a usage pattern of `note`; see `docs/DEV-LOG.md`.
 - `layouts/article/`, `layouts/note/`, `layouts/page/` — type-scoped page templates, each with its own `baseof.html`. Each renders only pages that opt in with the matching `type:`.
@@ -83,6 +84,6 @@ Shortcode names are frozen. New parameters must default to today's output.
   2. `fixtures/neutrality-check.ps1` — no brand names, analytics IDs, host asset paths, PaperMod selectors, or non-ASCII literals in `layouts/`, `assets/`, `archetypes/`.
   3. Site builds — `hugo --source site` builds with no base theme, and again with PaperMod. This is the gate that keeps the "optional base theme" claim honest; a Foundation that only built in its base-theme configuration would pass 1 and 2 while quietly requiring PaperMod for its own pages.
 - Run all three locally before claiming a release. CI is the final word; a local green on a different Hugo version is not a substitute.
-- The fixture covers the `fn/` partials only — it renders no shortcode. A change to `layouts/shortcodes/**` is not covered by the local gate; verify it against a consumer. See `docs/CONTRACTS.md` §13.2.
+- The fixture covers the `fn/` partials and the four shortcodes at template level. A change to `layouts/shortcodes/**` that breaks parsing or markup fails the gate; a change that affects visual fidelity (Unity builds, multilingual pages) does not, and must be verified against a consumer. See `docs/CONTRACTS.md` §13.2 and `docs/DEV.md`.
 - If Hugo Extended is not available locally, state that explicitly and do not claim the build is green.
 - Neutrality guard: `layouts/`, `assets/`, and `i18n/` must contain no brand names, analytics IDs, host asset paths (`/img/`), PaperMod selectors (`.top-link`, `#theme-toggle`, `.footer`), or non-ASCII literals. `docs/` and `fixtures/` are excluded. `site/` is the Foundation's own demo, not a consumer site, and is also excluded from the neutrality scan.
