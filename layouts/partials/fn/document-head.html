@@ -1,0 +1,48 @@
+﻿{{- /*
+  Document head - the shared <head> of every Foundation document shell.
+
+  Contract: docs/CONTENT-MODEL.md В§3
+
+  Three shells need the same head: article, page and home. A baseof has to
+  expose Hugo's `main` block to its child template and a partial cannot carry
+  a block, so the shells cannot collapse into one file. The head itself has no
+  such constraint, and it is the part that would drift - three copies of a
+  stylesheet list is three places to forget a file.
+
+  The scripts live here too, and that fixes a real gap. fn/banner.html and the
+  gallery shortcode both ship JavaScript, but no Foundation shell loaded it:
+  article/baseof.html and note/baseof.html never referenced fn-banner.js or
+  gallery-dialog.js. A dismissible banner did not dismiss, and the gallery
+  dialog did not open. The fixture masked it because the demo's own baseof
+  happens to load fn-banner.js, so the Foundation's shells were never the ones
+  being exercised for that behaviour.
+
+  Params:
+    page      - the Page being rendered. Required.
+    headExtra - optional template.HTML appended before the stylesheets. The
+                head extension point for a shell with no `fn-head` block.
+*/ -}}
+{{- $page := .page -}}
+{{- $headExtra := .headExtra -}}
+{{- $title := cond $page.IsHome site.Title (printf "%s | %s" $page.Title site.Title) -}}
+{{- $description := $page.Description | default site.Params.description }}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ $title }}</title>
+{{- with $description }}
+  <meta name="description" content="{{ . }}">
+{{- end }}
+{{- range $page.AlternativeOutputFormats }}
+  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+{{- end }}
+{{- $components := resources.Get "css/components-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $components.RelPermalink }}" integrity="{{ $components.Data.Integrity }}">
+{{- $prose := resources.Get "css/prose-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $prose.RelPermalink }}" integrity="{{ $prose.Data.Integrity }}">
+{{- $a11y := resources.Get "css/accessibility-base.css" | minify | fingerprint }}
+  <link rel="stylesheet" href="{{ $a11y.RelPermalink }}" integrity="{{ $a11y.Data.Integrity }}">
+{{- with $headExtra }}{{ . }}{{ end }}
+{{- $banner := resources.Get "js/fn-banner.js" | js.Build | minify | fingerprint }}
+  <script defer src="{{ $banner.RelPermalink }}" integrity="{{ $banner.Data.Integrity }}"></script>
+{{- $gallery := resources.Get "js/gallery-dialog.js" | js.Build | minify | fingerprint }}
+  <script defer src="{{ $gallery.RelPermalink }}" integrity="{{ $gallery.Data.Integrity }}"></script>

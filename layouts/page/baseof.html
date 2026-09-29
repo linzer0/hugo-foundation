@@ -1,0 +1,23 @@
+﻿{{- /*
+  Page base - the document shell for `type: page`.
+
+  Contract: docs/CONTENT-MODEL.md В§3, В§7
+
+  Identical to the article shell on purpose. A static page and a long-form
+  article differ in composition, not in the document around them, and a
+  consumer that restyles one restyles both for free.
+
+  Scoped to `layouts/page/` so it can never take over a page that did not ask
+  for it. See CONTENT-MODEL.md В§7 for why `_default/baseof.html` is the one
+  path this repository must never grow.
+*/ -}}
+{{- $lang := .Lang -}}
+<!DOCTYPE html>
+<html lang="{{ $lang }}">
+<head>
+  {{- partial "fn/document-head.html" (dict "page" .) }}
+  {{- block "fn-head" . }}{{ end -}}</head>
+<body class="fn-body">
+  {{- block "main" . }}{{ end }}
+</body>
+</html>

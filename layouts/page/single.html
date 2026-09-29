@@ -1,0 +1,12 @@
+{{- /*
+  Page single - the `type: page` page template.
+
+  Contract: docs/CONTENT-MODEL.md §3, §7
+
+  A page is an article with the long-form furniture off: no table of contents,
+  no reading time, no date row unless the page sets one. It reuses
+  fn/article-shell.html, so a consumer that restyles one restyles all three.
+*/ -}}
+{{- define "main" -}}
+{{- partial "fn/article-shell.html" (dict "page" . "class" "fn-page") -}}
+{{- end -}}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Dev Log on My Site</title>
+		<link>https://example.com/devlog/</link>
+		<description>Recent content in Dev Log on My Site</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+			<managingEditor>you@example.com (Your Name)</managingEditor>
+		
+		
+			<webMaster>you@example.com (Your Name)</webMaster>
+		
+		
+		
+			<lastBuildDate>Tue, 29 Sep 2026 00:00:00 +0000</lastBuildDate>
+		
+			<atom:link href="https://example.com/devlog/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Foundation is now a site as well as a theme</title>
+				<link>https://example.com/devlog/2026-09-29-foundation-becomes-a-site/</link>
+				<pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate><author>you@example.com (Your Name)</author>
+				<guid>https://example.com/devlog/2026-09-29-foundation-becomes-a-site/</guid>
+				<description>&lt;p&gt;The Foundation is no longer just a directory of partials you wire into your&#xA;own site. Clone it and &lt;code&gt;hugo server --source site&lt;/code&gt; gives you a working&#xA;article site; add it as a submodule and you get the same View layer under&#xA;someone else&amp;rsquo;s content.&lt;/p&gt;&#xA;&lt;p&gt;The split is enforced by Hugo, not by discipline. A theme&amp;rsquo;s &lt;code&gt;hugo.yaml&lt;/code&gt; is&#xA;merged into every consuming build, and its &lt;code&gt;content/&lt;/code&gt; is mounted into the&#xA;consuming site. The repository root holds only what a consumer should&#xA;inherit; site material lives in &lt;code&gt;site/&lt;/code&gt;. See &lt;code&gt;docs/BASE-THEME.md&lt;/code&gt; for the&#xA;verified mechanism.&lt;/p&gt;</description>
+			</item>
+	</channel>
+</rss>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Dev Log on My Site</title>
+    <link>https://example.com/devlog/</link>
+    <description>Recent content in Dev Log on My Site</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en-us</language>
+    <managingEditor>you@example.com (Your Name)</managingEditor>
+    <webMaster>you@example.com (Your Name)</webMaster>
+    <lastBuildDate>Tue, 29 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://example.com/devlog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Foundation is now a site as well as a theme</title>
+      <link>https://example.com/devlog/2026-09-29-foundation-becomes-a-site/</link>
+      <pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate><author>you@example.com (Your Name)</author>
+      <guid>https://example.com/devlog/2026-09-29-foundation-becomes-a-site/</guid>
+      <description>The repository split into a theme at the root and a starter site at site/.</description>
+    </item>
+  </channel>
+</rss>

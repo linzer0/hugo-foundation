@@ -1,0 +1,29 @@
+﻿# Build the Foundation site WITH the optional PaperMod base theme.
+#
+#   hugo server --source site --config hugo.yaml,hugo.with-base-theme.yaml
+#
+# Note the config paths are relative to --source, not to your shell. Written
+# as `--config site/hugo.yaml,site/hugo.with-base-theme.yaml` Hugo does not
+# find either file, silently falls back to built-in defaults, drops the theme
+# list and the themesDir with it, and then reports "found no layout file" for
+# every kind. That failure looks like a template problem and is a path problem.
+#
+# PaperMod is a submodule at the repository root (themes/PaperMod). It is not in
+# the default chain on purpose: the Foundation's own templates are a complete
+# site, and a starter that requires a base theme is not a foundation.
+#
+# What PaperMod actually contributes, measured: exactly one page, 404.html.
+# Every starter page declares a Foundation `type:`, so the Foundation renders
+# all of them and the base theme is never consulted. Turn it on when you add a
+# page that wants PaperMod's header, menu and footer.
+#
+# Order matters: the Foundation is declared first so its templates win over
+# PaperMod's at the same path. See docs/CONTRACTS.md §2.
+#
+# `params.author` in site/hugo.yaml is required by PaperMod's RSS template.
+# Without it that build fails on `site.Author`, a field that no longer exists
+# in current Hugo.
+
+theme:
+  - ..
+  - ../themes/PaperMod

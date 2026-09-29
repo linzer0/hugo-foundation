@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The two decisions you actually have to make | My Site</title>
+  <meta name="description" content="Which shell renders a page, and which base theme renders the rest. Everything else is a default you can change later.">
+  <link rel="stylesheet" href="/css/components-base.min.e4cf677eb2ee37cd0d6ccdb0060b10de223fd045a23786d4343067a59b2c6be5.css" integrity="sha256-5M9nfrLuN80NbM2wBgsQ3iI/0EWiN4bUNDBnpZssa&#43;U=">
+  <link rel="stylesheet" href="/css/prose-base.min.60b6c986b42455d21cb6a2d03ca3af283e5d7688e288cfb3c2bc577385eb4485.css" integrity="sha256-YLbJhrQkVdIctqLQPKOvKD5ddojiiM&#43;zwrxXc4XrRIU=">
+  <link rel="stylesheet" href="/css/accessibility-base.min.378af0f211edaaa50b3a15f8aa2751c5b311954b195f8c1de8ad76b0e90dc98d.css" integrity="sha256-N4rw8hHtqqULOhX4qidRxbMRlUsZX4wd6K12sOkNyY0=">
+  <script defer src="/js/fn-banner.min.a1a113554403e8d4d3b012cab2ced8738be5e398201e5e6697f0f956f690fb42.js" integrity="sha256-oaETVUQD6NTTsBLKss7Yc4vl45ggHl5ml/D5VvaQ&#43;0I="></script>
+  <script defer src="/js/gallery-dialog.min.393cd4e80cb1b0e956cfe8ed79201832b02a61e8f9975474346d725342fff692.js" integrity="sha256-OTzU6AyxsOlWz&#43;jteSAYMrAqYej5l1R0NG1yU0L/9pI="></script>
+</head>
+<body class="fn-body"><a class="fn-skip-link" href="#main">Skip to content</a><div class="fn-shell fn-article"><header class="fn-hero fn-hero--align-start">
+  <div class="fn-hero__shade" aria-hidden="true"></div>
+  <div class="fn-hero__content">
+    <h1 class="fn-hero__title">The two decisions you actually have to make</h1>
+    <p class="fn-hero__lead">Which shell renders a page, and which base theme renders the rest. Everything else is a default you can change later.</p>
+    <dl class="fn-hero__meta">
+      <div class="fn-hero__meta-item">
+        <dt>Published</dt>
+        <dd><time datetime="2026-09-29T00:00:00Z">September 29, 2026</time></dd>
+      </div>
+      <div class="fn-hero__meta-item">
+        <dt>Reading time</dt>
+        <dd>2 min read</dd>
+      </div>
+    </dl>
+  </div>
+</header>
+  <main class="fn-shell__main fn-article__main" id="main"><div class="fn-prose">
+  <p>The Foundation makes exactly two decisions on your behalf, and both are
+reversible. Knowing what they are saves an afternoon.</p>
+<h2 id="1-which-document-shell-wraps-your-content">1. Which document shell wraps your content</h2>
+<p>The Foundation&rsquo;s <code>article/baseof.html</code> is a complete, minimal document: head,
+stylesheets, one <code>&lt;main&gt;</code>, no header, no menu, no footer. On its own it is a
+perfectly good site and it needs nothing else to work.</p>
+<p>If you are using a base theme, you have two options that are <strong>not</strong>
+equivalent:</p>
+<ul>
+<li><strong>Keep the Foundation&rsquo;s shell.</strong> Article pages get a clean minimal document;
+everything else keeps your base theme&rsquo;s chrome. Mixed, and fully contained —
+the Foundation cannot break pages it does not own.</li>
+<li><strong>Shadow <code>layouts/article/baseof.html</code></strong> in your own <code>layouts/</code> and build on
+your base theme&rsquo;s shell instead. Now articles match the rest of the site.</li>
+</ul>
+<p>The Foundation does not pick for you. It has no way to know what your header
+looks like, and guessing would put your brand in the neutral layer.</p>
+<h2 id="2-whether-there-is-a-base-theme-at-all">2. Whether there is a base theme at all</h2>
+<p>The optional base theme sits at the <em>end</em> of the chain. It fills in pages the
+Foundation does not own, and it is where a menu, a dark-mode toggle, and a
+footer come from. Removing it leaves a working site with fewer pages.</p>
+<p>Set it once, in <code>hugo.yaml</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">theme</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">PaperMod</span>
+</span></span></code></pre></div><p>Everything on this site declares a <code>type:</code>, so the Foundation renders all of it
+itself and the base theme is never consulted. That is the containment property
+doing its job — and it also means the base theme is your call, not a
+requirement.</p>
+<h2 id="what-is-not-a-decision">What is not a decision</h2>
+<p>Front matter keys are additive. An unread key is not an error; it is simply not
+rendered. A typo in your own content model costs you a line of output, not a
+build failure, and you can read your own keys in a shadowed shell without
+filing anything upstream.</p>
+
+</div></main>
+</div>
+
+</body>
+</html>

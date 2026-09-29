@@ -1,0 +1,89 @@
+# The Foundation's own site.
+#
+# Build it with:
+#   hugo server --source site
+#   hugo --source site
+#
+# The site lives in site/ and the theme it consumes lives one directory up.
+# That split is not tidiness, it is Hugo's config cascade: a theme's own
+# hugo.yaml is merged into every consuming build, and a theme's content/ is
+# mounted into the consuming site. A repository that kept its site at the root
+# would inject its own articles and settings into linzer0.github.io and every
+# other consumer. See docs/BASE-THEME.md.
+
+baseURL: "https://example.com/"
+title: "My Site"
+defaultContentLanguage: "en"
+locale: "en-us"
+
+# The Foundation is the theme. `themesDir: "."` puts theme lookup next to this
+# file, so `..` is the repository root. This is the same wiring the fixture
+# uses, for the same reason: neither can depend on a submodule being checked
+# out before the build runs.
+themesDir: "."
+theme:
+  - ..
+
+# The optional base theme is OFF by default. Enable it with:
+#   hugo server --source site --config site/hugo.yaml,site/hugo.with-base-theme.yaml
+# Every page below declares a `type:` that the Foundation renders itself, so
+# the base theme contributes chrome, not pages. See docs/BASE-THEME.md.
+
+pagination:
+  pagerSize: 10
+
+# llms.txt is an industry-standard index of the site for LLM crawlers.
+outputFormats:
+  llms:
+    mediaType: "text/plain"
+    baseName: "llms"
+    isPlainText: true
+    notAlternative: true
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - llms
+
+# The Foundation renders tags as chips on the article page, not as a taxonomy.
+# Remove these two lines if you want /tags/ pages.
+disableKinds:
+  - taxonomy
+  - term
+
+markup:
+  tableOfContents:
+    startLevel: 2
+    endLevel: 3
+  goldmark:
+    renderer:
+      unsafe: true
+
+# Menu entries are optional. Uncomment and adapt, or drop the block entirely:
+# with no base theme there is no menu component to render them.
+#
+# menus:
+#   main:
+#     - name: Articles
+#       url: /articles/
+#       weight: 10
+#     - name: Notes
+#       url: /notes/
+#       weight: 20
+
+params:
+  description: "A site built on the Hugo Foundation."
+  # PaperMod's RSS template reads these. Without them the base-theme build
+  # fails on `site.Author` — a field that does not exist in current Hugo — and
+  # the failure only appears once you switch the base theme on, which is the
+  # worst time to meet it. Verified against PaperMod at 3bb0ca2.
+  author:
+    name: "Your Name"
+    email: "you@example.com"
+  homeKicker: "Hugo Foundation"
+  homeCtaTitle: "Write something"
+  homeCtaText: "The archetypes are ready. Start an article and delete this line."
+  # Everything under `foundation` is the Foundation's consumer API. See
+  # docs/CONTRACTS.md and docs/LOCALIZATION.md.
+  foundation: {}

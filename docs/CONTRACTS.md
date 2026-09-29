@@ -110,13 +110,35 @@ components with fixture-local skins. Consumers should keep this check when
 changing their theme chain; reversing Foundation and its fallback can shadow
 Foundation templates.
 
-**The Foundation now ships page templates**, at `layouts/article/` and
-`layouts/note/`. The corrected order is what makes them visible, but it is not
-what keeps them safe: they are scoped to a `type:`, so they render only the
-pages that opt in with one. A template at `layouts/_default/` would shadow the
-base theme site-wide whatever the order says — that distinction, order makes a
-template reachable and specificity keeps it contained, is why the content types
-live where they do. See `CONTENT-MODEL.md` §3.
+**The Foundation now ships page templates**, at `layouts/article/`,
+`layouts/page/` and `layouts/note/`. The corrected order is what makes them
+visible, but it is not what keeps them safe: they are scoped to a `type:`, so
+they render only the pages that opt in with one. A template at
+`layouts/_default/` would shadow the base theme site-wide whatever the order
+says — that distinction, order makes a template reachable and specificity keeps
+it contained, is why the content types live where they do. See
+`CONTENT-MODEL.md` §3.
+
+### The home page has no scoped baseof (verified)
+
+The home page is the one kind where a type-scoped baseof does not work, and it
+is worth recording because the failure is misleading.
+
+| Home shell lives at | Result |
+|---|---|
+| `layouts/_default/baseof.html` | works |
+| `layouts/index.baseof.html` | **not found** |
+| `layouts/home.baseof.html` | **not found** |
+| `layouts/index.html` as a complete document | works |
+
+Hugo resolves the home baseof **only** from `layouts/_default/baseof.html`.
+With any other name it reports `found no layout file for "html" for kind home`
+and renders nothing at all — no error, an empty site.
+
+`_default/baseof.html` is the one path this repository may never ship
+(`CONTENT-MODEL.md` §7), so the home is a standalone document at
+`layouts/index.html`. Its head is shared with the article, page and note shells
+through `partials/fn/document-head.html` rather than copied.
 
 ---
 
@@ -460,15 +482,42 @@ they mark where brand presentation has leaked into the neutral layer.
 
 ## 10. Anti-goals
 
-The Foundation does not, and will not:
+The Foundation's **neutral layer** — `layouts/partials/fn/`, `assets/`,
+`archetypes/`, and the type-scoped templates — does not, and will not:
 
 - own or reference site content, page bundles, or private working material;
 - contain brand assets, logos, or visual identity;
 - hardcode `baseURL`, menus, author data, or analytics IDs;
 - hardcode another theme's selectors or asset paths;
 - emit locale-dependent literal text;
-- ship or require PaperMod. A consumer may use PaperMod as a fallback, but
-  Foundation remains usable without it when the consumer supplies its own shell.
+- name a base theme. The neutral layer must build with none, and must not
+  change its output when one is added.
+
+### 10a. The repository is both a theme and a site
+
+This repository is used two ways, and the split between them is not cosmetic —
+it is enforced by Hugo, not by discipline.
+
+| Role | Where | Used by |
+|---|---|---|
+| **Theme** | `layouts/`, `assets/`, `archetypes/` at the repository root | Consumers, via `theme:` |
+| **Site** | `site/` | This repository, via `hugo --source site` |
+
+`themes/PaperMod` is a submodule and the optional base theme of `site/` only.
+
+**Never move site material to the repository root.** Two mechanisms force
+this, both verified against Hugo Extended 0.167.0:
+
+1. A theme's own `hugo.yaml` is merged into every consuming build. A `theme:`
+   key at the root made `linzer0.github.io` and the fixture look for PaperMod
+   in their own tree.
+2. A theme's `content/` is mounted into the consuming site. The starter
+   articles at the root appeared in the fixture as uninvited `/about/`,
+   `/articles/` and `/notes/` pages.
+
+There is no way to opt out of either from the theme's side: one config governs
+both roles, so an exclusion rule would empty the Foundation's own site too. The
+only correct answer is the directory split above. See `docs/BASE-THEME.md`.
 
 ---
 

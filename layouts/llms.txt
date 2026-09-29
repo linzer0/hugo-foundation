@@ -1,0 +1,49 @@
+{{- /*
+  llms.txt - an industry-standard index of the site for LLM crawlers.
+
+  Contract: docs/BASE-THEME.md
+
+  PaperMod ships an equivalent template at layouts/_default/llms.txt, but
+  PaperMod is optional here. Without one of its own, a Foundation site with no
+  base theme declares the `llms` output format in hugo.yaml and gets nothing to
+  render it, which Hugo reports as "found no layout file for llms for kind
+  home". That was the only warning a no-base-theme build produced, and a
+  warning about a missing file trains people to ignore build output.
+
+  Emits absolute permalinks, which is the point: a crawler gets resolvable
+  URLs. The section walk is recursive, so a site that nests needs no second
+  file.
+
+  Line breaks are produced with explicit "\n" in printf rather than by relying
+  on template whitespace. The obvious `{{ range }}` / `{{- if }}` form looks
+  equivalent and is not: the trim markers eat the newline after the heading and
+  the output reads "# Articles- [Start here](...)".
+*/ -}}
+{{- define "fn-llms-section" -}}
+  {{- $section := .section -}}
+  {{- $depth := .depth -}}
+  {{- if or (gt (len $section.RegularPages) 0) (gt (len $section.Sections) 0) -}}
+    {{- $hashes := strings.Repeat (add $depth 1) "#" -}}
+    {{- printf "\n%s %s\n\n" $hashes $section.Title -}}
+    {{- range $p := $section.RegularPages -}}
+      {{- if not (or $p.Params.searchHidden (eq $p.Layout `archives`) (eq $p.Layout `search`)) -}}
+        {{- printf "- [%s](%s)\n" $p.Title $p.Permalink -}}
+      {{- end -}}
+    {{- end -}}
+    {{- range $sub := $section.Sections -}}
+      {{- template "fn-llms-section" (dict "section" $sub "depth" (add $depth 1)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- printf "# %s\n\n" site.Title -}}
+{{- with site.Params.description -}}
+  {{- printf "%s\n\n" . -}}
+{{- end -}}
+{{- range $p := where site.RegularPages "Section" "" -}}
+  {{- if not (or $p.Params.searchHidden (eq $p.Layout `archives`) (eq $p.Layout `search`) $p.IsHome) -}}
+    {{- printf "- [%s](%s)\n" $p.Title $p.Permalink -}}
+  {{- end -}}
+{{- end -}}
+{{- range site.Sections -}}
+  {{- template "fn-llms-section" (dict "section" . "depth" 0) -}}
+{{- end -}}

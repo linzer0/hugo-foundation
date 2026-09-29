@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Articles on My Site</title>
+		<link>https://example.com/articles/</link>
+		<description>Recent content in Articles on My Site</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+			<managingEditor>you@example.com (Your Name)</managingEditor>
+		
+		
+			<webMaster>you@example.com (Your Name)</webMaster>
+		
+		
+		
+			<lastBuildDate>Tue, 29 Sep 2026 00:00:00 +0000</lastBuildDate>
+		
+			<atom:link href="https://example.com/articles/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Start here</title>
+				<link>https://example.com/articles/start-here/</link>
+				<pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate><author>you@example.com (Your Name)</author>
+				<guid>https://example.com/articles/start-here/</guid>
+				<description>&lt;p&gt;Clone it, &lt;code&gt;hugo server&lt;/code&gt;, and you have a working article site. That is the&#xA;whole pitch. Everything below is why it works that way.&lt;/p&gt;&#xA;&lt;h2 id=&#34;three-layers-three-owners&#34;&gt;Three layers, three owners&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Layer&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Lives in&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;Owns&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Content model&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;archetypes/&lt;/code&gt;, &lt;code&gt;docs/CONTENT-MODEL.md&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;What an article &lt;em&gt;is&lt;/em&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;View&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;layouts/partials/fn/&lt;/code&gt;, &lt;code&gt;assets/&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;How a piece &lt;em&gt;renders&lt;/em&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Composition&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;code&gt;layouts/article/&lt;/code&gt;, &lt;code&gt;layouts/page/&lt;/code&gt;, &lt;code&gt;layouts/note/&lt;/code&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;What a page is &lt;em&gt;made of&lt;/em&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;p&gt;A consumer adds a fourth layer on top — their brand, their templates. They&#xA;never edit the first three in place; they shadow them, so upgrading stays a&#xA;submodule pointer move.&lt;/p&gt;</description>
+			</item>
+			<item>
+				<title>The two decisions you actually have to make</title>
+				<link>https://example.com/articles/two-decisions/</link>
+				<pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate><author>you@example.com (Your Name)</author>
+				<guid>https://example.com/articles/two-decisions/</guid>
+				<description>&lt;p&gt;The Foundation makes exactly two decisions on your behalf, and both are&#xA;reversible. Knowing what they are saves an afternoon.&lt;/p&gt;&#xA;&lt;h2 id=&#34;1-which-document-shell-wraps-your-content&#34;&gt;1. Which document shell wraps your content&lt;/h2&gt;&#xA;&lt;p&gt;The Foundation&amp;rsquo;s &lt;code&gt;article/baseof.html&lt;/code&gt; is a complete, minimal document: head,&#xA;stylesheets, one &lt;code&gt;&amp;lt;main&amp;gt;&lt;/code&gt;, no header, no menu, no footer. On its own it is a&#xA;perfectly good site and it needs nothing else to work.&lt;/p&gt;&#xA;&lt;p&gt;If you are using a base theme, you have two options that are &lt;strong&gt;not&lt;/strong&gt;&#xA;equivalent:&lt;/p&gt;</description>
+			</item>
+	</channel>
+</rss>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Notes on My Site</title>
+		<link>https://example.com/notes/</link>
+		<description>Recent content in Notes on My Site</description>
+		<generator>Hugo</generator>
+		<language>en-us</language>
+		
+			<managingEditor>you@example.com (Your Name)</managingEditor>
+		
+		
+			<webMaster>you@example.com (Your Name)</webMaster>
+		
+		
+		
+			<lastBuildDate>Tue, 29 Sep 2026 00:00:00 +0000</lastBuildDate>
+		
+			<atom:link href="https://example.com/notes/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>The Foundation is now a site</title>
+				<link>https://example.com/notes/the-foundation-is-now-a-site/</link>
+				<pubDate>Tue, 29 Sep 2026 00:00:00 +0000</pubDate><author>you@example.com (Your Name)</author>
+				<guid>https://example.com/notes/the-foundation-is-now-a-site/</guid>
+				<description>&lt;p&gt;Until now this repository was a theme with no site attached: everything you&#xA;could run lived under &lt;code&gt;fixtures/&lt;/code&gt;, and the top level had no &lt;code&gt;hugo.yaml&lt;/code&gt;.&lt;/p&gt;&#xA;&lt;p&gt;It does now. Clone it and &lt;code&gt;hugo server&lt;/code&gt; gives you a working article site with&#xA;no base theme configured, no brand, and no domain of mine in it.&lt;/p&gt;&#xA;&lt;p&gt;Two things came with that. There is a third content type, &lt;code&gt;page&lt;/code&gt;, for the&#xA;static pages every site needs and no article type was honest about. And the&#xA;base theme is genuinely optional rather than aspirational — the start-here&#xA;article says what that buys you.&lt;/p&gt;</description>
+			</item>
+	</channel>
+</rss>

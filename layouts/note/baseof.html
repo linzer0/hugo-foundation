@@ -1,0 +1,21 @@
+﻿{{- /*
+  Note base - the document shell for `type: note`.
+
+  Contract: docs/CONTENT-MODEL.md В§3, В§7
+
+  This file was missing. `note/single.html` existed with no baseof to pair it,
+  so a note page resolved its content template and then found no document
+  shell. The fixture never caught it: its own `layouts/_default/baseof.html`
+  sat in the project and answered the request. A consumer without a base theme
+  got no note pages at all, which contradicts CONTENT-MODEL.md В§8.
+*/ -}}
+{{- $lang := .Lang -}}
+<!DOCTYPE html>
+<html lang="{{ $lang }}">
+<head>
+  {{- partial "fn/document-head.html" (dict "page" .) }}
+  {{- block "fn-head" . }}{{ end -}}</head>
+<body class="fn-body">
+  {{- block "main" . }}{{ end }}
+</body>
+</html>

@@ -1,8 +1,14 @@
 name: ci
 
-# The Foundation ships no build of its own. This workflow builds the fixture
-# and asserts the two properties that make the Foundation a reusable View layer,
-# on the exact Hugo version documented in docs/CONTRACTS.md §13.
+# The Foundation is a theme *and* a site, so this workflow runs three gates:
+#
+#   1. the fixture - the View layer renders identically across two skins
+#   2. the neutrality guard - no brand, no analytics ID, no locale branching
+#   3. the site - builds with no base theme, and builds again with PaperMod
+#
+# Gate 3 is the one that keeps the "optional base theme" claim honest. A
+# Foundation that only built in its base-theme configuration would pass 1 and 2
+# while quietly requiring PaperMod for its own pages.
 #
 # The toolchain is a matrix entry, not a loose variable, so the version and the
 # two checksums can never drift apart: bumping the version without refreshing
@@ -38,7 +44,10 @@ jobs:
       HUGO_SHA256_WINDOWS: ${{ matrix.hugo_sha256_windows }}
 
     steps:
+      # submodules: themes/PaperMod is the optional base theme of the site.
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       # Extended is required, not optional: the gallery shortcode resizes page
       # resources, and the fixture would fail late and confusingly on the
@@ -103,3 +112,23 @@ jobs:
       - name: Neutrality guard (Windows)
         if: runner.os == 'Windows'
         run: pwsh -File fixtures/neutrality-check.ps1
+
+      # Gate 3. The site must build with no base theme, and again with PaperMod.
+      # No --panicOnWarning: PaperMod's own templates still use .Language.* keys
+      # deprecated in Hugo 0.158.0, and that is upstream's to fix, not ours to
+      # paper over by ignoring warnings.
+      - name: Site build, no base theme (Linux)
+        if: runner.os == 'Linux'
+        run: hugo --source site --config hugo.yaml,hugo.no-base-theme.yaml --destination public-ci
+
+      - name: Site build, no base theme (Windows)
+        if: runner.os == 'Windows'
+        run: hugo --source site --config hugo.yaml,hugo.no-base-theme.yaml --destination public-ci
+
+      - name: Site build, with PaperMod (Linux)
+        if: runner.os == 'Linux'
+        run: hugo --source site --config hugo.yaml,hugo.with-base-theme.yaml --destination public-ci-pm
+
+      - name: Site build, with PaperMod (Windows)
+        if: runner.os == 'Windows'
+        run: hugo --source site --config hugo.yaml,hugo.with-base-theme.yaml --destination public-ci-pm

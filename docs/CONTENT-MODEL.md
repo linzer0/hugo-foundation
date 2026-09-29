@@ -32,12 +32,13 @@ makes a new content type a twenty-line change instead of a fork.
 
 ## 2. Content types
 
-The Foundation defines two types. Both are opt-in per page.
+The Foundation defines three types. All are opt-in per page.
 
 | Type | Template | For |
 |---|---|---|
 | `article` | `layouts/article/single.html` | Long-form, dated, structured writing |
 | `note` | `layouts/note/single.html` | Short updates, changelog entries, devlog notes |
+| `page` | `layouts/page/single.html` | Static pages: about, contact, colophon, privacy |
 
 A page opts in with one front-matter key:
 
@@ -230,13 +231,60 @@ The whole extension point, in order:
 That is the one move that breaks every other page on the consumer's site, and
 it fails silently.
 
+### The home page is the exception, and it is not a baseof
+
+The home page is the one kind with no working type-scoped baseof. Verified
+against Hugo Extended 0.167.0 and recorded in `CONTRACTS.md` §2:
+
+| Home shell | Result |
+|---|---|
+| `layouts/_default/baseof.html` | works, and is forbidden |
+| `layouts/index.baseof.html` | not found |
+| `layouts/home.baseof.html` | not found |
+| `layouts/index.html` as a complete document | works |
+
+So the home is a standalone document. Its `<head>` is shared with the article,
+page and note shells through `partials/fn/document-head.html`, which is the one
+place that knows the stylesheet and script list.
+
+### Site material never goes in the repository root
+
+A theme's `hugo.yaml` is merged into every consuming build, and a theme's
+`content/` is mounted into the consuming site. Both are verified, and there is
+no opt-out from the theme side.
+
+The starter site therefore lives in `site/`, and the repository root holds only
+what a consumer should inherit. See `docs/BASE-THEME.md` §2 and
+`CONTRACTS.md` §10a.
+
+### Dev Log is a usage pattern of `note`, not a content type
+
+The Foundation ships three content types: `article`, `note`, `page`. A Dev
+Log entry is a `type: note` with three additions on top of the standard note
+front matter: an optional `version`, an optional `changes` list, and the
+convention that the file lives inside a page bundle so it can carry its own
+cover and screenshots.
+
+```bash
+hugo new --kind devlog content/devlog/2026-09-29-foundation-becomes-a-site/index.md
+```
+
+The reason it is not a fourth type is that the shape is a convention: the
+Foundation does not render `changes` itself, and a consumer that wants
+different Dev Log semantics — say, a deploy target or a release link — extends
+the list with their own keys rather than asking the Foundation for a new
+template. See `docs/DEV-LOG.md` for the full convention.
+
 ---
 
 ## 8. What this layer deliberately does not do
 
-- It does not own content. The Foundation ships no articles, and never will.
+- It does not own the consumer's content. The starter articles under `site/`
+  exist to make a clone runnable and are deleted on first contact; they are
+  never inherited, because site material cannot live at the repository root.
 - It does not decide a section's URL, menu placement, or language.
 - It does not invent metadata. If a page does not declare a date, no date is
   rendered.
 - It does not force a base theme. With no base theme, the Foundation's own
-  `article/baseof.html` produces a complete document on its own.
+  shells produce a complete document on their own — this is asserted by two CI
+  builds, with and without PaperMod.

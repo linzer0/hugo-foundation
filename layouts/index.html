@@ -1,0 +1,68 @@
+﻿{{- /*
+  Home - the site home page, and a complete document.
+
+  Contract: docs/BASE-THEME.md, docs/CONTENT-MODEL.md §3, §7
+
+  Why there is no layouts/index.baseof.html: verified against Hugo Extended
+  0.167.0, the home page resolves its baseof **only** from
+  `layouts/_default/baseof.html`. `index.baseof.html` and `home.baseof.html`
+  are not in the lookup, and Hugo reports "found no layout file for html for
+  kind home" and renders nothing. The only baseof that works here is the one
+  CONTENT-MODEL.md §7 forbids this repository from shipping, so the home is a
+  standalone document and the shared head lives in fn/document-head.html.
+
+  A composition, not a component: this file decides what the home page is made
+  of and in what order, and every piece is a Foundation partial taking a dict.
+  A consumer restyles it through --fn-* custom properties, or shadows this
+  file to rearrange it. Neither requires editing a component.
+
+  Scoped to `layouts/index.html`, so it can only affect the home page of a site
+  that has no home template of its own.
+*/ -}}
+{{- $s := partial "fn/strings.html" . -}}
+{{- $articles := first 6 (where site.RegularPages "Params.type" "in" (slice "article" "note")) -}}
+{{- $heading := printf "%s" (partial "fn/section-heading.html" (dict
+      "id" "writing"
+      "kicker" "Writing"
+      "title" "Latest"
+      "link" (dict "url" (relURL "articles/") "label" "All articles")
+      "level" 2
+      "strings" $s)) | safeHTML -}}
+{{- $body := $heading -}}
+{{- with $articles -}}
+  {{- $body = printf "%s%s" $heading (printf "%s" (partial "fn/card-grid.html" (dict
+        "pages" .
+        "columns" 3
+        "class" "fn-home__grid"
+        "strings" $s)) | safeHTML) -}}
+{{- else -}}
+  {{- $body = printf "%s<p class=\"fn-home__empty\">%s</p>" $heading $s.emptyList -}}
+{{- end -}}
+{{- $cta := printf "%s" (partial "fn/cta.html" (dict
+      "title" site.Params.homeCtaTitle
+      "text" site.Params.homeCtaText
+      "actions" (slice (dict "url" (relURL "articles/") "label" $s.readMore "variant" "primary"))
+      "level" 2
+      "strings" $s)) | safeHTML -}}
+{{- $content := printf "%s" (partial "fn/page-shell.html" (dict
+      "page" .
+      "class" "fn-home"
+      "contentClass" "fn-home__main"
+      "hero" (dict
+          "overline" site.Params.homeKicker
+          "title" (.Title | default site.Title)
+          "description" (.Description | default site.Params.description)
+          "level" 1
+          "strings" $s)
+      "content" $body
+      "afterContent" $cta
+      "strings" $s)) -}}
+<!DOCTYPE html>
+<html lang="{{ .Lang }}">
+<head>
+  {{- partial "fn/document-head.html" (dict "page" .) }}
+</head>
+<body class="fn-body">
+{{ $content | safeHTML }}
+</body>
+</html>

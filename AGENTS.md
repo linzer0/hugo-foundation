@@ -2,9 +2,10 @@
 
 ## Scope
 
-- This repository provides the brand-agnostic Hugo foundation shared between Linar's sites (currently `linar.games`; future `linar.world`).
-- It contains only generic layouts, partials, shortcodes, supporting JS, and a neutral CSS baseline. No site identity, brand styling, authored content, or analytics IDs.
-- Consuming sites wire this repository as a git submodule.
+- This repository is both a theme and a working site. The theme (layouts, assets, archetypes, neutral CSS, JS) is what consumers inherit. The site (`site/`) is a runnable starter wired to that theme, used as the Foundation's own demo and as a CI gate. See `docs/BASE-THEME.md`.
+- A theme's `hugo.yaml` is merged into every consuming build, and its `content/` is mounted into the consuming site — both verified against Hugo Extended 0.167.0. There is no opt-out. Site material therefore lives in `site/`, never at the repository root.
+- `themes/PaperMod` is a submodule and the optional base theme of `site/` only. Consumers who add Foundation as a theme never get PaperMod unless they put it in their own `theme:` list.
+- This repository contains no site identity values, brand styling, or analytics IDs.
 
 ## Contracts
 
@@ -45,8 +46,8 @@ Partials in `layouts/partials/fn/`. Each takes a single dict and is documented i
 The layer that answers "what is an article", as opposed to "how does it render".
 Binding contract: `docs/CONTENT-MODEL.md`.
 
-- `archetypes/` — `default`, `article`, `note`, `bundle`. Hugo resolves these from a theme when the site has none of its own, which is what makes a new site productive immediately.
-- `layouts/article/`, `layouts/note/` — type-scoped page templates, each with its own `baseof.html`.
+- `archetypes/` — `default`, `article`, `note`, `page`, `devlog`, `bundle`. `devlog` is a usage pattern of `note`; see `docs/DEV-LOG.md`.
+- `layouts/article/`, `layouts/note/`, `layouts/page/` — type-scoped page templates, each with its own `baseof.html`. Each renders only pages that opt in with the matching `type:`.
 
 **Never add `layouts/_default/single.html` or `layouts/_default/baseof.html`.** A template at `_default/` is found before the base theme's copy and takes over every page on the consumer's site, not just the ones that asked for it. The build stays green; every page is wrong. Keep templates scoped to a `type:` — `docs/CONTENT-MODEL.md` §3 has the verified resolution table.
 
@@ -77,8 +78,11 @@ Shortcode names are frozen. New parameters must default to today's output.
 ## Verification
 
 - Supported toolchain is Hugo **Extended 0.167.0**, pinned with checksums in `.github/workflows/ci.yml`. Do not test against an arbitrary local Hugo and call it a pass. See `docs/CONTRACTS.md` §13.
-- CI is the authority for build success across consuming sites. It runs the fixture and the neutrality guard on `ubuntu-latest` and `windows-latest`.
-- Run `fixtures/build.ps1` (Windows) or `fixtures/build.sh` after any change to a component, its markup, or the theming surface. It builds the fixture against every skin, fails if the rendered markup stops being skin-agnostic, and passes `--panicOnWarning` so a Hugo deprecation fails the build. See `docs/CONTRACTS.md` §12.
+- CI is the authority. It runs three gates on `ubuntu-latest` and `windows-latest`:
+  1. `fixtures/build.ps1` — the View layer renders identically across two skins; the rendered DOM matches the committed snapshot.
+  2. `fixtures/neutrality-check.ps1` — no brand names, analytics IDs, host asset paths, PaperMod selectors, or non-ASCII literals in `layouts/`, `assets/`, `archetypes/`.
+  3. Site builds — `hugo --source site` builds with no base theme, and again with PaperMod. This is the gate that keeps the "optional base theme" claim honest; a Foundation that only built in its base-theme configuration would pass 1 and 2 while quietly requiring PaperMod for its own pages.
+- Run all three locally before claiming a release. CI is the final word; a local green on a different Hugo version is not a substitute.
 - The fixture covers the `fn/` partials only — it renders no shortcode. A change to `layouts/shortcodes/**` is not covered by the local gate; verify it against a consumer. See `docs/CONTRACTS.md` §13.2.
 - If Hugo Extended is not available locally, state that explicitly and do not claim the build is green.
-- Neutrality guard: `layouts/`, `assets/`, and `i18n/` must contain no brand names, analytics IDs, host asset paths (`/img/`), PaperMod selectors (`.top-link`, `#theme-toggle`, `.footer`), or non-ASCII literals. `docs/` and `fixtures/` are excluded.
+- Neutrality guard: `layouts/`, `assets/`, and `i18n/` must contain no brand names, analytics IDs, host asset paths (`/img/`), PaperMod selectors (`.top-link`, `#theme-toggle`, `.footer`), or non-ASCII literals. `docs/` and `fixtures/` are excluded. `site/` is the Foundation's own demo, not a consumer site, and is also excluded from the neutrality scan.

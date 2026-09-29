@@ -77,6 +77,109 @@ is a regression, not an improvement.
 
 ## [Unreleased]
 
+The Foundation is now a site as well as a theme. Clone it and `hugo server
+--source site` gives you a working article site; add it as a submodule and you
+get the same View layer underneath your own content.
+
+### Added
+
+- **`site/` — the Foundation's own site.** A home page, an articles section, a
+  notes section and an about page, wired to the Foundation as its own theme.
+  This is what makes the repository a starting point rather than a directory of
+  partials. It builds with no base theme at all.
+- **A `page` content type** — `layouts/page/single.html` and
+  `layouts/page/baseof.html`, plus `archetypes/page.md`. About, contact and
+  colophon pages have no honest home in `article` or `note`, and without a
+  Foundation type they were the reason a site needed a base theme just to
+  exist. See `docs/CONTENT-MODEL.md` §2.
+- **`layouts/llms.txt`** — the site index for LLM crawlers, so the `llms` output
+  format declared in `site/hugo.yaml` has something to render even with no base
+  theme. PaperMod ships an equivalent, but PaperMod is optional here.
+- **`partials/fn/document-head.html`** — the shared `<head>` of the article,
+  page and note shells, and the home. A baseof must expose Hugo's `main` block
+  and a partial cannot carry a block, so the shells stay separate files; the
+  head did not have to be, and three copies of a stylesheet list is three
+  places to forget a file.
+- **`themes/PaperMod` as a submodule** — the optional base theme for `site/`
+  only, enabled by `site/hugo.with-base-theme.yaml`. Off by default.
+- **`docs/BASE-THEME.md`** and **`docs/LOCALIZATION.md`**.
+
+### Fixed
+
+- **`note` pages rendered nothing without a base theme.** `note/single.html`
+  existed with no baseof to pair it, so a note page resolved its content
+  template and then found no document shell. The fixture never caught it: the
+  demo's own `layouts/_default/baseof.html` sat in the project and answered the
+  request. This contradicted `CONTENT-MODEL.md` §8.
+- **`fn-banner.js` and `gallery-dialog.js` were never loaded.** No Foundation
+  shell referenced them, so a dismissible banner did not dismiss and the
+  gallery dialog did not open. The fixture masked it for the banner because
+  its own baseof loads `fn-banner.js`.
+- **`.AlternativeOutputFormats` was iterated twice** in the document shells. On
+  a page with any alternative output — an RSS-enabled site, which is the normal
+  case — this failed the build with `range can't iterate over
+  {alternate {rss …}}`. It never fired in the fixture, which disables RSS.
+- **`llms.txt` newlines.** Section headings ran into the first list item:
+  `# Articles- [Start here](…)`.
+
+### Changed
+
+- **A `note` page now renders in the Foundation's shell**, like an `article`
+  page, instead of falling through to the base theme's `_default/baseof.html`.
+  This is the change most likely to be visible on a consumer, so it is called
+  out under breaking changes below.
+- **Foundation shells emit two `<script>` tags** (`fn-banner.js`,
+  `gallery-dialog.js`) that they did not emit before. A consumer shadowing
+  `article/baseof.html` gets its own head and is unaffected.
+- **`CONTRACTS.md` §10 rewritten.** The anti-goals now bind the *neutral layer*
+  rather than the repository, and a new §10a records the theme/site split and
+  why the site's material cannot live at the root.
+
+### Documented
+
+- **The home page has no scoped baseof.** Verified against 0.167.0: Hugo resolves
+  the home baseof only from `layouts/_default/baseof.html`, which this
+  repository may not ship. `index.baseof.html` and `home.baseof.html` are not
+  found, and Hugo reports the failure as "no layout file" rather than as a
+  missing template. The home is therefore a standalone document.
+- **A theme's `hugo.yaml` and `content/` leak into every consuming build**, and
+  there is no opt-out from the theme side. This is why the site lives in
+  `site/` and the repository root holds only what a consumer should inherit.
+- **`--config` paths are relative to `--source`.** Written as
+  `--config site/hugo.yaml,…` Hugo finds neither file, falls back to defaults,
+  drops the theme list with them, and reports "no layout file" for every kind.
+
+### Added
+
+- **Dev Log as a usage pattern of `note`.** `archetypes/devlog.md` generates a
+  `type: note` with a `version` field, a `changes` list, and the `devlog`
+  tag pre-stamped; `docs/DEV-LOG.md` records the convention. The Foundation
+  does not render `changes` itself — a consumer extends the list with their
+  own keys rather than asking for a new template. A starter entry under
+  `site/content/devlog/` exercises it.
+
+### Fixed
+
+- **PR #9: `merge` in `fn/strings.html` normalised every key to lower case**
+  and stored the lower-cased spelling on collision. The defaults above are
+  camelCase, so the moment a consumer supplied a single string the returned
+  map lost every camelCase key and every caller read nil. Replaced `merge`
+  with a `Scratch`-based resolver that matches incoming keys against the
+  defaults case-insensitively, so a lower-cased configuration key still lands
+  on the camelCase default, and a key that matches no default is passed
+  through untouched. Verified against the fixture and against
+  `linzer0.github.io`.
+
+### Breaking for consumers
+
+- A `type: note` page now renders with `layouts/note/baseof.html` rather than
+  with the base theme's `_default/baseof.html`. A consumer that relied on notes
+  inheriting their base theme's chrome — PaperMod's header, menu and footer —
+  will see notes switch to the Foundation's minimal document. Fix by shadowing
+  `layouts/note/baseof.html` in your own `layouts/`, exactly as you would for
+  `layouts/article/baseof.html`. A consumer that does not care is unaffected:
+  both shells are complete documents.
+
 ## [0.1.0] - 2026-09-29
 
 ### Changed

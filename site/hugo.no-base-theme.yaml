@@ -1,0 +1,13 @@
+# The Foundation's own site, with no base theme in the chain.
+#
+#   hugo server --source site --config hugo.yaml,hugo.no-base-theme.yaml
+#
+# Same build as the default site/hugo.yaml. The file exists as a named
+# counterpart to hugo.with-base-theme.yaml, so "the site with no base theme"
+# is something a CI job can point at rather than a fact to remember.
+#
+# Config paths are relative to --source, for the reason given in
+# hugo.with-base-theme.yaml.
+
+theme:
+  - ..
