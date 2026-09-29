@@ -3,9 +3,18 @@
 
   Contract: docs/CONTENT-MODEL.md §3, §7
 
-  A page is an article with the long-form furniture off: no table of contents,
-  no reading time, no date row unless the page sets one. It reuses
-  fn/article-shell.html, so a consumer that restyles one restyles all three.
+  A page is the short, undated-end kind of document: about, contact, colophon.
+  It reuses fn/article-shell.html, so a consumer that restyles one restyles all three.
+
+  What the type actually changes is the name, the class, and the archetype. It
+  suppresses nothing on its own: reading time is a meta item on every type
+  because it defaults to true (CONTENT-MODEL.md §7), and a table of contents is
+  opt-in on every type through `toc: true`, not off for pages specifically. A
+  page that sets `readingTime: false` loses the row, and one that sets
+  `toc: true` gains the nav, exactly as an article would.
+
+  What is true of the type regardless of configuration: no date row unless the
+  page sets a date.
 */ -}}
 {{- define "main" -}}
 {{- partial "fn/article-shell.html" (dict "page" . "class" "fn-page") -}}

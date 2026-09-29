@@ -17,7 +17,7 @@ new content type arrives without touching a single component.
 |---|---|---|---|
 | **Content model** | `archetypes/`, this document | What is an article? | Foundation |
 | **View** | `layouts/partials/fn/`, `assets/` | How does it render? | Foundation |
-| **Composition** | `layouts/article/`, `layouts/note/` | What is the page made of? | Foundation, shadowable |
+| **Composition** | `layouts/article/`, `layouts/note/`, `layouts/page/` | What is the page made of? | Foundation, shadowable |
 
 A consumer adds a fourth layer on top — brand styling, and site-specific
 templates in its own `layouts/`. It never edits the first three in place; it
