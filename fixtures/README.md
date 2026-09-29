@@ -18,9 +18,13 @@ and the check fails.
 ## Running it
 
 ```bash
-pwsh -File fixtures/build.ps1           # Windows
-bash fixtures/build.sh                  # Linux / macOS / CI
+powershell -File fixtures/build.ps1           # Windows; `pwsh -File` works too
+bash fixtures/build.sh                        # Linux / macOS / CI
 ```
+
+Both shells run the same `.ps1` on Windows. `powershell` is Windows PowerShell
+5.1 and ships with Windows; `pwsh` is PowerShell 7 and is not installed by
+default, so prefer `powershell` unless you know you have it.
 
 The scripts pass `--panicOnWarning`: a Hugo deprecation notice fails the build
 rather than scrolling past. Run them with the pinned toolchain, Hugo Extended
@@ -39,7 +43,7 @@ They share nothing but the Foundation.
 ## Neutrality guard
 
 ```bash
-pwsh -File fixtures/neutrality-check.ps1
+powershell -File fixtures/neutrality-check.ps1
 bash fixtures/neutrality-check.sh
 ```
 

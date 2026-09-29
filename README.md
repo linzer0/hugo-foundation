@@ -116,9 +116,13 @@ that the rendered body markup is byte-identical across both — proof that one
 View layer is genuinely reusable and not secretly brand-specific.
 
 ```bash
-pwsh -File fixtures/build.ps1   # Windows
-bash fixtures/build.sh          # Linux / macOS / CI
+powershell -File fixtures/build.ps1   # Windows; `pwsh -File` works too
+bash fixtures/build.sh                # Linux / macOS / CI
 ```
+
+Both shells run the same `.ps1` on Windows. `powershell` is Windows PowerShell
+5.1 and ships with Windows; `pwsh` is PowerShell 7 and is not installed by
+default, so prefer `powershell` unless you know you have it.
 
 CI runs both scripts, plus the neutrality guard, on Linux and Windows against the
 pinned Hugo. See `fixtures/README.md`.

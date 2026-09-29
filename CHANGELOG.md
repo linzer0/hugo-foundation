@@ -50,9 +50,12 @@ hugo --minify
 Then run both gates before believing the result:
 
 ```bash
-bash fixtures/build.sh              # or pwsh -File fixtures/build.ps1
-bash fixtures/neutrality-check.sh   # or pwsh -File fixtures/neutrality-check.ps1
+bash fixtures/build.sh              # or: powershell -File fixtures/build.ps1
+bash fixtures/neutrality-check.sh   # or: powershell -File fixtures/neutrality-check.ps1
 ```
+
+On Windows either shell runs the `.ps1`: `powershell` is Windows PowerShell 5.1
+and is always present, `pwsh` is PowerShell 7 and is not installed by default.
 
 CI runs both on the pinned Hugo version. It is the authority; a local green on
 a different Hugo version is not a substitute.

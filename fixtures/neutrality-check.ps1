@@ -3,7 +3,8 @@
 # The Foundation is shared by sites that do not share a brand. This checks that
 # it has not quietly grown one.
 #
-#   pwsh -File fixtures/neutrality-check.ps1
+#   powershell -File fixtures/neutrality-check.ps1   # Windows PowerShell 5.1
+#   pwsh -File fixtures/neutrality-check.ps1         # PowerShell 7
 #   bash fixtures/neutrality-check.sh
 #
 # Two classes of finding:
