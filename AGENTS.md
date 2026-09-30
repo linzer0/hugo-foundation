@@ -55,10 +55,12 @@ lives in `docs/DEV.md`.
 
 ## Shortcodes
 
-- `gallery` — page-bundle image gallery with lightbox dialog.
-- `video` — generic HTML5 video embed.
-- `unity-webgl-player` — Unity WebGL build loader with progress bar and fullscreen button.
-- `english-page-content` — pulls the English version of a page into another language.
+- `gallery` — page-bundle image gallery with lightbox dialog. Over `fn/media/gallery.html`.
+- `video` — generic HTML5 video embed. Over `fn/media/video.html`.
+- `english-page-content` — pulls the English version of a page into another language. Standalone: no partial, and none planned.
+
+`unity-webgl-player` was removed. Do not reintroduce it without a consumer that
+asks for it.
 
 Shortcode names are frozen. New parameters must default to today's output.
 
@@ -85,6 +87,6 @@ Shortcode names are frozen. New parameters must default to today's output.
   2. `fixtures/neutrality-check.ps1` — no brand names, analytics IDs, host asset paths, PaperMod selectors, or non-ASCII literals in `layouts/`, `assets/`, `archetypes/`.
   3. Site builds — `hugo --source site` builds with no base theme, and again with PaperMod. This is the gate that keeps the "optional base theme" claim honest; a Foundation that only built in its base-theme configuration would pass 1 and 2 while quietly requiring PaperMod for its own pages.
 - Run all three locally before claiming a release. CI is the final word; a local green on a different Hugo version is not a substitute.
-- The fixture covers the `fn/` partials and the four shortcodes at template level. A change to `layouts/shortcodes/**` that breaks parsing or markup fails the gate; a change that affects visual fidelity (Unity builds, multilingual pages) does not, and must be verified against a consumer. See `docs/CONTRACTS.md` §13.2 and `docs/DEV.md`.
+- The fixture covers the `fn/` partials and the shortcodes at template level. A change to `layouts/shortcodes/**` that breaks parsing or markup fails the gate; a change that affects visual fidelity (image resizing, multilingual pages) does not, and must be verified against a consumer. See `docs/CONTRACTS.md` §13.2 and `docs/DEV.md`.
 - If Hugo Extended is not available locally, state that explicitly and do not claim the build is green.
 - Neutrality guard: `layouts/`, `assets/`, and `i18n/` must contain no brand names, analytics IDs, host asset paths (`/img/`), PaperMod selectors (`.top-link`, `#theme-toggle`, `.footer`), or non-ASCII literals. `docs/` and `fixtures/` are excluded. `site/` is the Foundation's own demo, not a consumer site, and is also excluded from the neutrality scan.

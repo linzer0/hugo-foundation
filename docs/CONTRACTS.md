@@ -369,64 +369,58 @@ Custom properties: `--fn-cta-bg`, `--fn-cta-fg`, `--fn-cta-pad`, `--fn-cta-gap`,
 
 ### 7.6 `fn/media/gallery.html`
 
-> **Specified, not shipped.** This partial and the two below it do not exist.
-> `layouts/partials/fn/media/` is not in the repository. For `gallery`,
-> `video` and `unity-webgl-player` the shortcode *is* the implementation, and
-> a consumer changes one by shadowing the shortcode file in its own
-> `layouts/shortcodes/`. The parameter tables here describe the target once
-> the partials are written; until then, treat §8 for the naming and the
-> byte-stability rule, and the shortcode for the markup.
->
-> Verified by absence: `layouts/partials/fn/` contains thirteen partials and no
-> `media` subdirectory.
+The composition behind the `gallery` shortcode.
 
-Promotes the gallery shortcode to a partial. Takes `items` (slice of
-`{src, alt, caption?, href?}`) **or** the page-bundle shortcut `page` + `folder`,
-plus `columns`, `lightbox`, `class`, `strings`.
+| Param | Type | Default |
+|---|---|---|
+| `page` | Page | required — the page whose resources are matched |
+| `folder` | string | required — matched as `<folder>/*` against the page bundle |
+| `strings` | dict | resolved here if absent |
 
-Output: `.fn-gallery` with `.fn-gallery__item` children and a single
-`<dialog class="fn-gallery__dialog">` per page, loaded once via `Page.Scratch`.
-Accessible names come from `strings.openPreview` / `strings.closePreview` /
-`strings.previewDialogLabel`.
+Output: `<div class="gallery-container">` holding one
+`<a class="gallery-item gallery-item--portrait|landscape">` per matched image,
+each wrapping `<div class="image"><img></div>`, and a single
+`<dialog class="gallery-dialog">` per page with its script, guarded through
+`page.Scratch` so a page with three galleries carries one dialog. A folder that
+matches nothing still emits the container, empty.
 
-Custom properties: `--fn-gallery-columns`, `--fn-gallery-gap`,
-`--fn-gallery-radius`, `--fn-gallery-dialog-bg`.
+Accessible names come from `strings.openPreview` (the link, suffixed with the
+file name), `strings.closePreview` and `strings.previewDialogLabel`.
+
+Orientation is `portrait` when the image is taller than it is wide, and the
+resize follows: `420x640 q90` for portrait, `600x400 q90` for landscape, through
+Hugo Extended's image pipeline.
+
+The class names are the shortcode's, unchanged since this component was
+inlined. The `fn-` names an earlier draft of this document used
+(`.fn-gallery`, `.fn-gallery__item`, `.fn-gallery__dialog`) were never shipped,
+and adopting them would have restyled a live site's galleries and repointed the
+dialog JavaScript's hooks for no gain. `assets/css/shortcodes-base.css` styles
+the names that exist.
+
+Note that `folder` is a directory: the match is `<folder>/*`, so an image
+sitting at the bundle root is not found. `fixtures/demo/content/shortcodes/gallery/`
+keeps its image in `cover/`, and the fixture fails if that stops being true —
+it did once, which is how the empty-container case was discovered.
 
 ### 7.7 `fn/media/video.html`
+
+The composition behind the `video` shortcode.
 
 | Param | Type | Default |
 |---|---|---|
 | `src` | string | — (required) |
-| `type` | string | `video/mp4` |
-| `poster`, `preload`, `autoplay`, `muted`, `loop`, `controls` | | `controls` true |
-| `caption` | string | `nil` |
-| `class`, `strings` | | |
+| `type` | string | — (required) |
+| `preload` | string | — (required) |
+| `class` | string | `video-shortcode` |
+| `strings` | dict | resolved here if absent |
 
-Fallback text comes from `strings.videoFallback`.
+Output: `<video class="video-shortcode" preload="…" controls>` with one
+`<source>`. Fallback text comes from `strings.videoFallback`, so a browser
+without codec support reads a localised sentence instead of two hardcoded
+English lines.
 
-### 7.8 `fn/media/unity-webgl.html`
-
-| Param | Type | Default |
-|---|---|---|
-| `buildURL` | string | — (required) |
-| `buildFileName` | string | — (required) |
-| `playerID` | string | — (required, must be unique per page) |
-| `width`, `height` | int | — (required) |
-| `title` | string | `nil` |
-| `progressImages` | `{empty, full}` | — (**required**) |
-| `fullscreenImage` | string | `nil` |
-| `class`, `strings` | | |
-
-`progressImages` and `fullscreenImage` are required because the images must be
-carried by the component rather than fetched from a host-root path. The
-`/img/…` references this originally justified are gone: `assets/css/shortcodes-base.css`
-in this repository contains no `/img/`, and the neutrality guard fails the build
-if one reappears (§9, item 9, resolved).
-
-All labels — load button, mobile warning, narrow-viewport hint, fullscreen
-button — come from the strings dict.
-
-### 7.9 `fn/page-shell.html`
+### 7.8 `fn/page-shell.html`
 
 The single place where page composition is decided.
 
@@ -447,7 +441,7 @@ The Foundation may ship `layouts/_default/single.html` and `list.html` that
 delegate here. A consumer may shadow those two files instead of calling the
 partial — see the ordering constraint in §2.
 
-### 7.10 `fn/list-shell.html`
+### 7.9 `fn/list-shell.html`
 
 The section-index composition, shared by all three content types. It resolves
 the section's pages (falling back to the English translation's pages when a
@@ -485,7 +479,15 @@ own prefixes — before they existed, a section index carrying `type: note` or
 ## 8. Shortcode stability
 
 These names are frozen and will not be renamed: `gallery`, `video`,
-`unity-webgl-player`, `english-page-content`.
+`english-page-content`.
+
+`unity-webgl-player` was one of them and no longer is. It was removed rather
+than deprecated: the component is 40 lines of template plus 155 lines of CSS, it
+carried three hardcoded English strings and the only accessible-name gap in the
+repository, and no consumer wanted it. Removing it deleted the component, its
+fixture, its styles and four dead `strings` keys rather than leaving a shim
+that would have to be maintained forever. This is a breaking change and is
+called out in `CHANGELOG.md` as one.
 
 Changes are additive only. A new parameter must have a default that reproduces
 today's output byte-for-byte, so that existing content keeps working without
@@ -495,12 +497,11 @@ The shortcodes are **editor-facing syntax** over the same components. When a
 composition has a natural content-author syntax, keep both: the partial is the
 contract, the shortcode is the convenience.
 
-That rule is the target, not today's state. Of the four shortcodes, none has a
-partial behind it yet — `gallery`, `video` and `unity-webgl-player` are
-specified in §7.6–7.8 and `english-page-content` is standalone. So today a
-consumer who wants to change one of them shadows the shortcode file itself, and
-that is the only supported route. The names and the additive-parameters rule
-above hold regardless.
+That is now true for both media shortcodes. `gallery` and `video` delegate to
+`fn/media/gallery.html` and `fn/media/video.html` (§7.6, §7.7), and a consumer
+restyles one by shadowing the partial, not the shortcode. `english-page-content`
+has no partial and none is planned — it is a one-liner over `hugo.Sites` and
+the shortcode is the whole component.
 
 ---
 
@@ -525,27 +526,14 @@ a live list of defects in a repository that is clean.
 | 9 | `assets/css/shortcodes-base.css:94,99,107` | hardcoded site-root asset URLs | R4, §7.8 | fixed — 0 `/img/` in this repository, and the neutrality guard fails the build if one returns |
 | 10 | consumer `shortcodes-base.css` | hardcoded colour literals instead of custom properties | §5 | fixed — the consumer loads the Foundation's `--fn-*` file |
 | 11 | `layouts/shortcodes/gallery.html:8,19,24` | hardcoded English `aria-label`s, no `strings` parameter | §4 | **fixed** — labels resolve through `fn/strings.html`; output byte-identical, and the existing keys were already there unused |
-| 12 | `layouts/shortcodes/unity-webgl-player.html:9,12,16` | hardcoded English labels | §4 | **open** |
+| 12 | `layouts/shortcodes/unity-webgl-player.html:9,12,16` | hardcoded English labels | §4 | **removed** — the shortcode, its fixture and 155 lines of CSS are gone, and the four `strings` keys it needed went with it |
 | 13 | consumer `hugo.yaml` | keep Foundation before any optional fallback theme | §2 | satisfied — the consumer lists `hugo-foundation` before `PaperMod` |
 
-Item 12 is the one still open, and it is not a one-line fix. The shortcode has
-three literals of its own, and the `strings` keys that were written for it
-(`narrowViewportHint`, `mobileUnsupported`, `loadGame`) do not match them
-word for word, so wiring the shortcode to the resolver changes what readers
-see. That is a decision about which text is right, not a wiring job:
-
-- line 9: "This content does not resize on smaller browser widths. Try using the
-  fullscreen button below (after loading the game)." vs `narrowViewportHint`
-- line 12: "Unity WebGL builds are not supported on mobile devices." vs
-  `mobileUnsupported`
-- line 16: `start loading` vs `loadGame` ("Start loading")
-
-`strings.fullscreen` is also unused: the fullscreen control is an empty
-`<div>`, so it has no accessible name at all.
-
-Items 11 and 12 are the reason a second consumer cannot localise these two
-components today. Item 11 is closed; item 12 is the remaining half, and closing
-it means choosing the text before wiring it.
+Items 11 and 12 were the reason a second consumer could not localise these
+components. Both are closed: `gallery` reads its accessible names from
+`fn/strings.html`, and the component that could not be localised is no longer
+shipped. `video` was in the same position and is now wired too — its fallback
+text was two hardcoded English lines while `strings.videoFallback` sat unused.
 
 ---
 
@@ -702,7 +690,7 @@ consumed by sites that build for months, so the version is an explicit promise:
 ### 13.1 Recorded changes, 0.146.0 → 0.167.0
 
 Established by building the fixture **and** a multilingual stand that exercises
-all four shortcodes on both versions, then diffing the rendered output. Items
+the shortcodes on both versions, then diffing the rendered output. Items
 marked *consumer* change consumer behaviour and are verified in the consumer, not
 here — this repository deliberately does not build them.
 
@@ -721,15 +709,17 @@ here — this repository deliberately does not build them.
 ### 13.2 What this verification does not cover
 
 The fixture exercises each shortcode at template level: `gallery` against a
-real page bundle, `video` and `unity-webgl-player` with stub params, and the
-section landing is a regular page. A green fixture run therefore asserts that
-the shortcode templates still parse, still link the stylesheet, and still emit
-the markup the snapshot recorded.
+real page bundle, `video` with stub params, and the section landing is a
+regular page. A green fixture run therefore asserts that the shortcode
+templates still parse, still link the stylesheet, and still emit the markup the
+snapshot recorded.
 
-It does **not** assert visual fidelity. `gallery` rendering depends on real
-images and on the page-resource pipeline that a multilingual stand cannot
-reproduce cheaply, and `unity-webgl-player` rendering depends on a real Unity
-WebGL build. Those are the gap that the gate cannot bridge.
+It does **not** assert visual fidelity. `gallery` rendering depends on the
+image pipeline — portrait versus landscape, and the two resize targets — which a
+multilingual stand cannot reproduce cheaply. That is the gap the gate cannot
+bridge, and it is why the gallery fixture keeps a real image: without one the
+shortcode matched nothing and the snapshot recorded an empty container that
+looked like coverage.
 
 Multilingual coverage for `english-page-content` follows in v0.3.0. Until
 then, verify any change to `english-page-content.html` against a consumer that

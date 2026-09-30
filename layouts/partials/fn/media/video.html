@@ -1,0 +1,17 @@
+{{- /*
+  Video — the composition behind the `video` shortcode.
+
+  Contract: docs/CONTRACTS.md §7.7
+
+  Takes `src`, `type` and `preload`, plus `class` and `strings`. The fallback
+  text is the one thing a browser without codec support will ever read, so it
+  comes from the strings resolver rather than being written in the markup.
+
+  The markup is the shortcode's, unchanged: `video-shortcode`. §7.7 described
+  this component as `.fn-video`, another name this repository never shipped.
+*/ -}}
+{{- $s := .strings | default (partial "../strings.html" .) -}}
+<video class="{{ .class | default "video-shortcode" }}" preload="{{ .preload }}" controls>
+<source src="{{ .src }}" type="{{ .type }}">
+{{ $s.videoFallback }}
+</video>

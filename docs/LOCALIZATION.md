@@ -5,11 +5,12 @@ How text reaches a page in the Hugo Foundation, and who owns which string.
 This refines `docs/CONTRACTS.md` §4. It is binding in the same way. Where the
 two disagree, §4 wins and this document is wrong.
 
-> **Status: partial.** The resolver and the key set below are stable and
-> shipped. Three of the four shortcodes still emit hardcoded English and do
-> not call the resolver. The gap is named in §6 rather than hidden, because a
-> contract that quietly describes an unimplemented future is worse than one
-> that admits what is missing.
+> **Status: complete for the components that render text.** The resolver and the
+> key set below are stable and shipped, and every shortcode that emits visible
+> text now reads from it: `gallery` for its three accessible names, `video` for
+> its fallback. `english-page-content` renders a page's existing content and
+> invents no strings. The fourth shortcode that used to emit hardcoded English is
+> gone — see §6.
 
 ---
 
@@ -111,11 +112,7 @@ an English default that reproduces current output.
 | `openPreview` | `Open image preview` | gallery trigger |
 | `closePreview` | `Close image preview` | gallery dialog close |
 | `previewDialogLabel` | `Image preview` | gallery `<dialog>` label |
-| `videoFallback` | `There should have been a video here, but your browser does not seem to support it.` | video |
-| `loadGame` | `Start loading` | WebGL load button — **not wired yet**, §6 |
-| `mobileUnsupported` | `This content is not supported on mobile devices.` | WebGL mobile warning — **not wired yet**, §6 |
-| `narrowViewportHint` | `This content does not resize on smaller browser widths. Try the fullscreen button after loading.` | WebGL viewport warning — **not wired yet**, §6 |
-| `fullscreen` | `Fullscreen` | WebGL fullscreen button — **not wired yet**, §6 |
+| `videoFallback` | `There should have been a video here but your browser does not seem to support it.` | video |
 | `bannerDismiss` | `Dismiss` | banner |
 | `skipToContent` | `Skip to content` | page shell |
 | `publishedOn` | `Published` | article meta |
@@ -151,26 +148,34 @@ block. The Foundation is not bilingual by default and does not want to be.
 
 ---
 
-## 6. Known gap: shortcodes still bypass the resolver
+## 6. Closed: the shortcode gap
 
-`layouts/shortcodes/unity-webgl-player.html` emits four hardcoded English
-strings: the narrow-viewport warning, the mobile warning, `start loading`, and
-the unlabelled fullscreen button. The resolver has carried keys for all four
-since it was written; nothing calls it.
+This section used to name a hard defect. `layouts/shortcodes/unity-webgl-player.html`
+emitted four hardcoded English strings — the narrow-viewport warning, the mobile
+warning, `start loading`, and an unlabelled fullscreen button — while the
+resolver carried a key for each. A Russian consumer could not fix them without
+forking the shortcode, which is the exact thing §1 exists to prevent.
 
-This is `docs/CONTRACTS.md` §9 items 11 and 12. It is a **hard** localization
-defect, not a style preference: a Russian consumer currently cannot fix those
-four strings without forking the shortcode, which is the exact thing §1 exists
-to prevent.
+Two changes closed it, and they closed it in opposite directions.
 
-Closing it is a behaviour change, so it gets its own change, not a drive-by:
-the English defaults and the current literals differ in case
-(`Start loading` vs `start loading`), and the shortcode names are frozen under
-§8. The fix must ship the wiring, the fixture assertion, and a changelog entry
-together.
+`gallery` and `video` are now wired. Both delegate to a partial that resolves
+strings: the gallery's three `aria-label`s and the video's fallback text. The
+video default lost a comma it never had — the fallback was two hardcoded English
+lines, and the `videoFallback` key wrote the same sentence with one. The default
+was corrected to match the shipped text, so the rendered sentence is unchanged
+and the key is finally used.
 
-Until then, treat the WebGL shortcode as **English-only**, and say so in any
-consumer that uses it.
+`unity-webgl-player` is gone. It was 40 lines of template and 155 lines of CSS
+for a component no consumer wanted, and its four strings could not be fixed
+without deciding which wording was right — `start loading` against `Start
+loading`, two different hints for the same warning. Removing it took the
+component, its fixture, its styles and the four now-dead keys with it. That is
+a breaking change and `CHANGELOG.md` says so.
+
+What is left is honest about its limits: the fixture has no second language, so
+it cannot prove that an override actually reaches the markup. The keys are
+resolved, and a bilingual stand is still what would make this enforceable
+rather than merely stated — see §7.
 
 ---
 
@@ -178,9 +183,8 @@ consumer that uses it.
 
 - `fixtures/neutrality-check.ps1` fails on any `site.Language.Lang` branching
   in `layouts/` or `assets/`. That is the automated half of this contract.
-- The automated half is currently the *only* automated half. Nothing in the
-  fixture asserts that a key is actually resolved, and `layouts/shortcodes/**`
-  is not covered by the fixture gate at all — tracked as issue #6.
-- A bilingual fixture (two languages, overrides in one, defaults in the other)
-  is the missing piece, and it is what would make this contract enforceable
-  rather than merely stated.
+- The fixture covers `layouts/shortcodes/**` at template level, so a shortcode
+  that stops parsing or stops rendering its markup fails the gate.
+- What the fixture cannot do is add a second language and prove an override
+  reaches the output. That is the missing piece, tracked as issue #6, and it is
+  what would make this contract enforceable rather than merely stated.

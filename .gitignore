@@ -14,6 +14,12 @@ site/public-*/
 site/tmp-*/
 tmp-*/
 
+# The fixture's image-processing cache. `resources/_gen/` above is anchored to
+# the repository root — a pattern with a slash inside it does not match at
+# depth — so the fixture's own cache was neither ignored nor absent, and
+# appeared the moment the gallery fixture grew a real image to resize.
+fixtures/demo/resources/
+
 # OS / editor
 .DS_Store
 Thumbs.db

@@ -1,5 +1,14 @@
-<video class="video-shortcode" preload="{{ .Get "preload" }}" controls>
-<source src="{{ .Get "src" }}" type="{{ .Get "type" }}">
-There should have been a video here but your browser does not seem
-to support it.
-</video>
+{{- /*
+  Video shortcode — editor-facing syntax over fn/media/video.html.
+
+  Contract: docs/CONTRACTS.md §7.7, §8
+
+  The partial is the contract; this is the convenience. A consumer that wants a
+  different video shadows fn/media/video.html and every `video` call on its site
+  follows.
+*/ -}}
+{{- partial "fn/media/video.html" (dict
+    "src" (.Get "src")
+    "type" (.Get "type")
+    "preload" (.Get "preload")
+) -}}

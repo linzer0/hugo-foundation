@@ -77,6 +77,51 @@ is a regression, not an improvement.
 
 ## [Unreleased]
 
+### Removed
+
+- **`unity-webgl-player` shortcode.** This is a breaking change: the name is no
+  longer frozen (see "What counts as a breaking change" above) and any page
+  using it will render nothing. It went with its fixture, 155 lines of
+  `.webgl-player` / `.unity-*` styling in `assets/css/shortcodes-base.css`, and
+  the four `strings` keys it needed — `loadGame`, `mobileUnsupported`,
+  `narrowViewportHint`, `fullscreen`. It was the only component that could not
+  be localised, because its hardcoded English and the defaults written for it
+  disagreed word for word, and no consumer wanted it. `AGENTS.md` says not to
+  reintroduce it without one.
+
+### Changed
+
+- **`gallery` and `video` moved behind partials.** `fn/media/gallery.html` and
+  `fn/media/video.html` now hold the compositions and the shortcodes call them,
+  which is the arrangement §7.6–7.7 and §8 have always described. The partial is
+  the contract; a consumer restyles a gallery by shadowing the partial rather
+  than the shortcode. **The rendered output is byte-identical** for the gallery,
+  verified by building the same content with the inline shortcode and with the
+  partial and diffing. The one visible change is in `video`: its fallback text
+  was two hardcoded English lines and is now `strings.videoFallback`, one line
+  with the same words. HTML collapses the line break, so the sentence a browser
+  reads is unchanged.
+- `videoFallback`'s default lost a comma it never had in the shipped markup, so
+  the key now matches what the component actually rendered.
+- `CONTRACTS.md` §7.6 and §7.7 describe the markup that exists rather than a
+  `.fn-gallery` naming that was never shipped. §7.8 is gone with the component,
+  and §7.9/§7.10 are renumbered §7.8/§7.9.
+- `docs/LOCALIZATION.md` §6 moves from "known gap" to closed. Every shortcode
+  that renders text now resolves strings.
+
+### Fixed
+
+- **The gallery fixture matched nothing.** `shortcodes/gallery/index.md` passes
+  `folder="cover"` while its image sat at the bundle root, and the shortcode
+  matches `<folder>/*`, so the recorded snapshot was an empty container that
+  read like coverage. The image now lives in `cover/` and the fixture renders a
+  real card, which is the first time the orientation logic, the resize targets
+  and the link's `aria-label` have been asserted anywhere.
+- The gallery's three `aria-label`s resolve through `fn/strings.html` instead of
+  being written in the markup. The keys were in the resolver the whole time,
+  unused; a bilingual consumer could not change them without forking the
+  shortcode. Output is byte-identical.
+
 ## [0.2.0] - 2026-09-29
 
 The Foundation is now a site as well as a theme. Clone it and `hugo server

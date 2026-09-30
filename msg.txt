@@ -1,0 +1,80 @@
+refactor: drop unity-webgl-player, and give the media shortcodes real partials
+
+Two changes in one, because the second is only possible once the first is done
+and the first was the reason the second stalled.
+
+## unity-webgl-player is gone
+
+It was 40 lines of template and 155 lines of CSS for a component nobody wanted,
+and it was the only thing in the repository that could not be localised: three
+hardcoded English strings, and a fourth for a fullscreen button that was an
+empty `<div>` with no accessible name at all. The `strings` keys written for it
+did not match its literals word for word — `start loading` against
+`Start loading`, and two different sentences for the same viewport warning — so
+wiring it was a decision about which text was right rather than a wiring job.
+
+Removed rather than deprecated, and that is a breaking change: the shortcode
+name is no longer frozen, and a page using it renders nothing. It took its
+fixture, its styles and the four now-dead keys with it. `AGENTS.md` records not
+reintroducing it without a consumer that asks.
+
+## The media partials are real
+
+`CONTRACTS.md` §7.6–7.8 documented `fn/media/gallery.html`,
+`fn/media/video.html` and `fn/media/unity-webgl.html` with full parameter
+tables. There was no `layouts/partials/fn/media/` directory at all, so §8's
+"the partial is the contract, the shortcode is the convenience" was false for
+every shortcode in the list: the only thing a consumer could shadow was the
+shortcode file.
+
+`gallery` and `video` now have the partials those sections described, and the
+shortcodes are thin calls. The compositions are the shortcodes' own bodies, so
+the rendered output does not move:
+
+    old shortcode   8900D30C6A95A22689B5BBA0E625C96B
+    new partial     8900D30C6A95A22689B5BBA0E625C96B
+
+Same file, same bytes, same line-ending normalisation the gate applies. I
+checked that twice: the first comparison was invalid because PowerShell's `>`
+wrote the old shortcode as UTF-16 and Hugo emitted it as page text, and the
+second because the checkout had CRLF in the template literals and I was
+comparing raw bytes. The gate normalises, so the gate's comparison is the one
+that counts.
+
+The single visible change is in `video`: its fallback was two hardcoded English
+lines and is now `strings.videoFallback`, one line. HTML collapses the break,
+so the sentence a browser reads is identical, and the default lost a comma it
+never had in the shipped markup.
+
+§7.6 and §7.7 now describe the class names that exist rather than an `fn-`
+naming that was never shipped — adopting it would have restyled a live site's
+galleries and repointed the dialog JavaScript's hooks for nothing.
+
+## The gallery fixture was matching nothing
+
+Worth recording because it is the kind of coverage that looks like coverage.
+`shortcodes/gallery/index.md` passes `folder="cover"` and keeps its image at the
+bundle root, and the shortcode matches `<folder>/*`, so the recorded snapshot was
+an empty `gallery-container`. The card markup, the orientation branch, both
+resize targets and the link's `aria-label` had never been asserted by anything.
+
+The image now lives in `cover/` and the fixture renders a real card, which is
+the first time any of that is exercised. Three snapshots change as a result and
+all three are meant to: `llms.txt` loses the Unity entry, `gallery` gains the
+card, `video` reflows to one line.
+
+## Also
+
+`fixtures/demo/resources/` was neither tracked nor ignored — `resources/_gen/`
+in `.gitignore` is anchored to the repository root, so it does not match at
+depth. It appeared as soon as the gallery fixture had an image worth resizing.
+`docs/CONTRACTS.md` §9 items 11 and 12 are both closed, §11's "0 hard, 0
+known" holds, `LOCALIZATION.md` §6 moves from gap to closed, and the
+`shortcodes-base.css` header still describes what the file now contains.
+
+## Verification
+
+- `fixtures/build.ps1` passes.
+- `fixtures/neutrality-check.ps1` passes, 0 new, 0 known.
+- `hugo --source site` with no base theme and with PaperMod: 12 and 13 HTML
+  files, exit 0, zero warnings in the no-base-theme build.

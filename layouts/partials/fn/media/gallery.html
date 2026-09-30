@@ -1,0 +1,54 @@
+{{- /*
+  Gallery - the composition behind the `gallery` shortcode.
+
+  Contract: docs/CONTRACTS.md §7.6
+
+  Takes `page` and `folder`, and matches the page-bundle resources under that
+  folder. `strings` is optional and resolved here if absent.
+
+  The markup is the shortcode's, unchanged: `gallery-container`,
+  `gallery-item`, `gallery-dialog`. The `fn-` class names §7.6 used to
+  describe were a naming this repository never shipped, and adopting them here
+  would have meant restyling a live site's galleries and repointing the dialog
+  JavaScript's hooks. The contract now describes what is here.
+
+  The body is written in the same shape as the shortcode it replaces — nested
+  `with` / `if` / `range`, same indentation — because that indentation is
+  output. Rewriting it as string concatenation changes the bytes the fixture
+  compares, and nothing about a gallery should change because its
+  implementation moved behind a partial.
+
+  The dialog and its script are emitted once per page, guarded through
+  `page.Scratch`, so a page with three galleries carries one dialog.
+*/ -}}
+{{- $page := .page -}}
+{{- $folder := .folder -}}
+{{- $s := .strings | default (partial "../strings.html" $page) -}}
+<div class="gallery-container">
+    {{ with ($page.Resources.Match (printf "%s/*" $folder)) }}
+    {{ if . }}
+    {{ range . }}
+    {{ $orientation := cond (gt .Height .Width) "portrait" "landscape" }}
+    {{ $resized := cond (eq $orientation "portrait") (.Fit "420x640 q90") (.Fill "600x400 q90") }}
+    <a class="gallery-item gallery-item--{{ $orientation }}" href="{{ .RelPermalink }}" aria-label="{{ $s.openPreview }}: {{ .Name }}" data-gallery-image data-gallery-alt="{{ .Name }}">
+        <div class="image">
+            <img src="{{ $resized.RelPermalink }}" alt="{{ .Name }}" loading="lazy" decoding="async" />
+        </div>
+    </a>
+    {{ end }}
+    {{ else }}
+    {{ end }}
+    {{ end }}
+</div>
+{{- if not ($page.Scratch.Get "gallery-dialog-loaded") -}}
+<dialog class="gallery-dialog" data-gallery-dialog aria-label="{{ $s.previewDialogLabel }}">
+    <figure class="gallery-dialog__figure">
+        <img class="gallery-dialog__image" data-gallery-dialog-image alt="">
+        <figcaption class="gallery-dialog__caption" data-gallery-dialog-caption></figcaption>
+    </figure>
+    <button class="gallery-dialog__close" type="button" data-gallery-dialog-close aria-label="{{ $s.closePreview }}">&times;</button>
+</dialog>
+{{- $galleryScript := resources.Get "js/gallery-dialog.js" | js.Build | minify | fingerprint -}}
+<script defer src="{{ $galleryScript.RelPermalink }}" integrity="{{ $galleryScript.Data.Integrity }}"></script>
+{{- $page.Scratch.Set "gallery-dialog-loaded" true -}}
+{{- end -}}

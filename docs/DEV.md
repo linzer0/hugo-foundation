@@ -39,7 +39,7 @@ do not have `gh`, use the GitHub UI.
 │   ├── article/            # type-scoped shell for type: article
 │   ├── note/               # type-scoped shell for type: note
 │   ├── page/               # type-scoped shell for type: page
-│   ├── shortcodes/         # gallery, video, unity-webgl-player, english-page-content
+│   ├── shortcodes/         # gallery, video, english-page-content
 │   └── index.html          # the home; standalone document
 ├── assets/
 │   ├── css/                # components-base, prose-base, shortcodes-base, accessibility-base

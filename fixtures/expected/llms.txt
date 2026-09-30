@@ -20,5 +20,4 @@
 # Shortcodes
 
 - [Gallery smoke test](https://fixture.example/shortcodes/gallery/)
-- [Unity WebGL smoke test](https://fixture.example/shortcodes/unity/)
 - [Video smoke test](https://fixture.example/shortcodes/video/)
