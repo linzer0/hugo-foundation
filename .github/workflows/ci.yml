@@ -132,3 +132,30 @@ jobs:
       - name: Site build, with PaperMod (Windows)
         if: runner.os == 'Windows'
         run: hugo --source site --config hugo.yaml,hugo.with-base-theme.yaml --destination public-ci-pm
+
+      # The property docs/BASE-THEME.md §3 claims: the Foundation renders its
+      # whole site on its own, and an optional base theme contributes exactly
+      # one page. Asserted rather than measured by hand, because a claim in a
+      # document that no gate checks is a claim that quietly stops being true.
+      #
+      # 12 with no base theme, 13 with PaperMod, and the one extra file is
+      # 404.html. If a type ever needs a base theme to render, the Foundation
+      # stops being a foundation and this fails.
+      - name: Base theme contributes only its 404 (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          list() { (cd "$1" && find . -name '*.html' | LC_ALL=C sort); }
+          only_with=$(comm -13 <(list site/public-ci) <(list site/public-ci-pm))
+          only_without=$(comm -23 <(list site/public-ci) <(list site/public-ci-pm))
+          a=$(list site/public-ci | wc -l)
+          b=$(list site/public-ci-pm | wc -l)
+          if [ "$a" -ne 12 ] || [ "$b" -ne 13 ] || [ "$only_with" != "./404.html" ] || [ -n "$only_without" ]; then
+            echo "expected 12 pages with no base theme, 13 with PaperMod, and only ./404.html added" >&2
+            echo "  with no base theme: $a    with PaperMod: $b" >&2
+            echo "  only in the PaperMod build: ${only_with:-<nothing>}" >&2
+            echo "  only in the no-base-theme build: ${only_without:-<nothing>}" >&2
+            exit 1
+          fi
+          echo "base theme contributes only 404.html ($a pages without, $b with)"
