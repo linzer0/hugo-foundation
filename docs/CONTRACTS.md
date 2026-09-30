@@ -490,8 +490,13 @@ that would have to be maintained forever. This is a breaking change and is
 called out in `CHANGELOG.md` as one.
 
 Changes are additive only. A new parameter must have a default that reproduces
-today's output byte-for-byte, so that existing content keeps working without
-edits. A rename requires a deprecation path shipped in the same release.
+today's output exactly, so that existing content keeps working without edits.
+A rename requires a deprecation path shipped in the same release.
+
+"Exactly" is what the rule asks for, not what the gate can see: the fixture
+compares normalised markup (§12.1), so it will not notice a default that leaves
+the DOM alone but moves an asset fingerprint, an integrity hash or the generator
+meta. A green fixture is necessary here, not sufficient — read the diff.
 
 The shortcodes are **editor-facing syntax** over the same components. When a
 composition has a natural content-author syntax, keep both: the partial is the
@@ -612,8 +617,9 @@ build is green.
 `fixtures/` builds one minimal site against two skins and asserts the property
 this document claims:
 
-> The rendered body markup is **byte-identical** across skins. Only the
-> `data-skin` marker and the `<link>` to the skin stylesheet may differ.
+> The rendered body markup is **identical** across skins once the five
+> normalisations in §12.1 are applied. Only the `data-skin` marker and the
+> `<link>` to the skin stylesheet may differ.
 
 A skin changes a page by setting `--fn-*` custom properties and by targeting
 the documented `fn-*` class contract — never by editing a template. If that
@@ -623,8 +629,8 @@ The check is deliberately paranoid, because a check that cannot fail is worse
 than no check:
 
 - It asserts the two builds differ **before** normalisation. If they are
-  byte-identical, the skin never switched and every other assertion would pass
-  for the wrong reason.
+  identical even before it, the skin never switched and every other assertion
+  would pass for the wrong reason.
 - It verifies each `--config` override file exists before invoking Hugo. Hugo
   does **not** fail on a missing entry in `--config`; it silently builds with
   what it found.
@@ -664,8 +670,8 @@ The check is designed to be impossible to pass vacuously:
   diff in review, not a silent reset.
 
 This is what makes a refactor such as the relative-reference conversion in §1a
-provable: the markup after the change is byte-identical to the markup before it,
-and stays that way afterwards.
+provable: the markup after the change is identical to the markup before it
+under the same normalisation, and stays that way afterwards.
 
 ---
 

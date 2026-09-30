@@ -6,9 +6,10 @@
   <title>{{ .Title }}</title>
   {{- $base := resources.Get "css/components-base.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $base.RelPermalink }}" integrity="{{ $base.Data.Integrity }}">
-  {{- /* Both skins publish assets/css/skin.css. The View markup is byte-identical
-         between builds; only this stylesheet changes. That is the property the
-         fixture exists to prove. */}}
+  {{- /* Both skins publish assets/css/skin.css. The View markup is the same
+         between builds, once the fixture's normalisations are applied; only
+         this stylesheet changes. That is the property the fixture exists to
+         prove. */}}
   {{- with resources.Get "css/skin.css" }}
     {{- $skin := . | minify | fingerprint }}
     <link rel="stylesheet" href="{{ $skin.RelPermalink }}" integrity="{{ $skin.Data.Integrity }}">

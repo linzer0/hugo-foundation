@@ -2,8 +2,15 @@
 # Build the fixture against every skin and assert the two properties the fixture
 # exists to prove:
 #
-#   1. one View layer  - body markup is byte-identical across skins;
+#   1. one View layer  - body markup is identical across skins, once the
+#                        normalisations below are applied;
 #   2. a stable DOM    - that markup matches the committed snapshot.
+#
+# "Identical" here means identical after normalize(), not byte-identical. Five
+# things are cut before the comparison - the skin link and data-skin marker,
+# asset fingerprints, their integrity hashes, the Hugo version in the generator
+# meta, and CR. A change to any of those is a legitimate change that must not
+# fail this gate, and a real DOM change still cannot hide behind them.
 #
 #   bash fixtures/build.sh
 #   bash fixtures/build.sh --update
@@ -137,10 +144,10 @@ fi
 
 for skin in "${skins[@]:1}"; do
     # Guard against the check silently comparing a build with itself. If the two
-    # raw builds are byte-identical, the skin never switched, and every
+    # raw, unnormalised builds are identical, the skin never switched, and every
     # assertion below would pass for the wrong reason.
     if [ "$(cat "${outputs[$skin]}")" = "$(cat "${outputs[$reference]}")" ]; then
-        echo "FAIL  $skin output is byte-identical to $reference: the skin never switched"
+        echo "FAIL  $skin output is identical to $reference even before normalising: the skin never switched"
         failed=1
         continue
     fi
@@ -154,7 +161,10 @@ for skin in "${skins[@]:1}"; do
     fi
 done
 
-# The Foundation stylesheet must be untouched by the skin choice.
+# The Foundation stylesheet must be untouched by the skin choice. What is
+# compared is the fingerprinted *file name*, not the bytes: Hugo derives the
+# fingerprint from the content, so equal names mean equal bytes, and the gate
+# never has to read a large stylesheet to decide.
 base_names=$(for skin in "${skins[@]}"; do
     find "$demo/public-$skin/css" -name 'components-base*.css' -printf '%f\n' | head -n 1
 done)

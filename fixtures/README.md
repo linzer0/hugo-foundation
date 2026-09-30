@@ -8,9 +8,11 @@ rot unless something checks them. This fixture checks it.
 
 ## What it proves
 
-Build it against every skin. The rendered body markup must be **byte-identical**
-across builds. Only two things may differ: the `data-skin` marker and the
-`<link>` to the skin stylesheet.
+Build it against every skin. The rendered body markup must be **identical**
+across builds, once the normalisations the build script applies are accounted
+for: the skin stylesheet link, the `data-skin` marker, asset fingerprints and
+their integrity hashes, the Hugo version in the generator meta, and CR. Only
+the first two are things a skin is *allowed* to change.
 
 If a skin can change the page by editing a template, the layering has leaked
 and the check fails.

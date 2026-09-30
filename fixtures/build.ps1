@@ -1,8 +1,15 @@
 # Build the fixture against every skin and assert the two properties the fixture
 # exists to prove:
 #
-#   1. one View layer  - body markup is byte-identical across skins;
+#   1. one View layer  - body markup is identical across skins, once the
+#                        normalisations below are applied;
 #   2. a stable DOM    - that markup matches the committed snapshot.
+#
+# "Identical" here means identical after Normalize, not byte-identical. Five
+# things are cut before the comparison - the skin link and data-skin marker,
+# asset fingerprints, their integrity hashes, the Hugo version in the generator
+# meta, and CR. A change to any of those is a legitimate change that must not
+# fail this gate, and a real DOM change still cannot hide behind them.
 #
 #   powershell -File fixtures/build.ps1        # Windows PowerShell 5.1
 #   pwsh -File fixtures/build.ps1              # PowerShell 7
@@ -96,8 +103,11 @@ if (-not $pages) {
     Write-Error "nothing was rendered into $referenceRoot; the build is not exercising the Foundation"
 }
 
-# LF, no BOM: the snapshot is compared byte for byte, so it must not depend on
-# the platform that recorded it.
+# LF, no BOM: the committed snapshot must not depend on the platform that
+# recorded it. Windows PowerShell 5.1 has no utf8NoBOM option, and its
+# Out-File -Encoding UTF8 would add a BOM that then shows up in every diff of
+# this file. Neither survives the comparison, so this is about the checked-in
+# artefact, not about what the gate can see.
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 foreach ($page in $pages) {
@@ -160,10 +170,10 @@ foreach ($skin in $skins[1..($skins.Count - 1)]) {
     $raw = Get-Content -LiteralPath $outputs[$skin] -Raw
 
     # Guard against the check silently comparing a build with itself. If the two
-    # raw builds are byte-identical, the skin never switched, and every
-    # assertion below would pass for the wrong reason.
+    # raw, unnormalised builds are identical, the skin never switched, and
+    # every assertion below would pass for the wrong reason.
     if ($raw -eq $referenceRaw) {
-        Write-Host "FAIL  $skin output is byte-identical to ${reference}: the skin never switched"
+        Write-Host "FAIL  $skin output is identical to ${reference} even before normalising: the skin never switched"
         $failed = $true
         continue
     }
@@ -179,7 +189,10 @@ foreach ($skin in $skins[1..($skins.Count - 1)]) {
     }
 }
 
-# The Foundation stylesheet must be untouched by the skin choice.
+# The Foundation stylesheet must be untouched by the skin choice. What is
+# compared is the fingerprinted *file name*, not the bytes: Hugo derives the
+# fingerprint from the content, so equal names mean equal bytes, and the gate
+# never has to read a large stylesheet to decide.
 $baseHash = @()
 foreach ($skin in $skins) {
     $file = Get-ChildItem (Join-Path $demo "public-$skin\css") -Filter 'components-base*.css' |
