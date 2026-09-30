@@ -1,11 +1,11 @@
-{{ $folder := .Get "folder" }}
+{{ $folder := .Get "folder" }}{{ $s := partial "fn/strings.html" .Page }}
 <div class="gallery-container">
     {{ with (.Page.Resources.Match (printf "%s/*" $folder)) }}
     {{ if . }}
     {{ range . }}
     {{ $orientation := cond (gt .Height .Width) "portrait" "landscape" }}
     {{ $resized := cond (eq $orientation "portrait") (.Fit "420x640 q90") (.Fill "600x400 q90") }}
-    <a class="gallery-item gallery-item--{{ $orientation }}" href="{{ .RelPermalink }}" aria-label="Open image preview: {{ .Name }}" data-gallery-image data-gallery-alt="{{ .Name }}">
+    <a class="gallery-item gallery-item--{{ $orientation }}" href="{{ .RelPermalink }}" aria-label="{{ $s.openPreview }}: {{ .Name }}" data-gallery-image data-gallery-alt="{{ .Name }}">
         <div class="image">
             <img src="{{ $resized.RelPermalink }}" alt="{{ .Name }}" loading="lazy" decoding="async" />
         </div>
@@ -16,12 +16,12 @@
     {{ end }}
 </div>
 {{- if not (.Page.Scratch.Get "gallery-dialog-loaded") -}}
-<dialog class="gallery-dialog" data-gallery-dialog aria-label="Image preview">
+<dialog class="gallery-dialog" data-gallery-dialog aria-label="{{ $s.previewDialogLabel }}">
     <figure class="gallery-dialog__figure">
         <img class="gallery-dialog__image" data-gallery-dialog-image alt="">
         <figcaption class="gallery-dialog__caption" data-gallery-dialog-caption></figcaption>
     </figure>
-    <button class="gallery-dialog__close" type="button" data-gallery-dialog-close aria-label="Close image preview">&times;</button>
+    <button class="gallery-dialog__close" type="button" data-gallery-dialog-close aria-label="{{ $s.closePreview }}">&times;</button>
 </dialog>
 {{- $galleryScript := resources.Get "js/gallery-dialog.js" | js.Build | minify | fingerprint -}}
 <script defer src="{{ $galleryScript.RelPermalink }}" integrity="{{ $galleryScript.Data.Integrity }}"></script>

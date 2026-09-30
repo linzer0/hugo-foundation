@@ -369,6 +369,17 @@ Custom properties: `--fn-cta-bg`, `--fn-cta-fg`, `--fn-cta-pad`, `--fn-cta-gap`,
 
 ### 7.6 `fn/media/gallery.html`
 
+> **Specified, not shipped.** This partial and the two below it do not exist.
+> `layouts/partials/fn/media/` is not in the repository. For `gallery`,
+> `video` and `unity-webgl-player` the shortcode *is* the implementation, and
+> a consumer changes one by shadowing the shortcode file in its own
+> `layouts/shortcodes/`. The parameter tables here describe the target once
+> the partials are written; until then, treat §8 for the naming and the
+> byte-stability rule, and the shortcode for the markup.
+>
+> Verified by absence: `layouts/partials/fn/` contains thirteen partials and no
+> `media` subdirectory.
+
 Promotes the gallery shortcode to a partial. Takes `items` (slice of
 `{src, alt, caption?, href?}`) **or** the page-bundle shortcut `page` + `folder`,
 plus `columns`, `lightbox`, `class`, `strings`.
@@ -406,11 +417,11 @@ Fallback text comes from `strings.videoFallback`.
 | `fullscreenImage` | string | `nil` |
 | `class`, `strings` | | |
 
-`progressImages` and `fullscreenImage` are required precisely because the
-current Foundation CSS hardcodes `/img/progress-bar-empty-dark.png`,
-`/img/progress-bar-full-dark.png` and `/img/fullscreen-button.png` — paths that
-resolve against the consumer's site root and do not exist in this repository
-(§9, item 9). The component must carry its own images.
+`progressImages` and `fullscreenImage` are required because the images must be
+carried by the component rather than fetched from a host-root path. The
+`/img/…` references this originally justified are gone: `assets/css/shortcodes-base.css`
+in this repository contains no `/img/`, and the neutrality guard fails the build
+if one reappears (§9, item 9, resolved).
 
 All labels — load button, mobile warning, narrow-viewport hint, fullscreen
 button — come from the strings dict.
@@ -484,32 +495,57 @@ The shortcodes are **editor-facing syntax** over the same components. When a
 composition has a natural content-author syntax, keep both: the partial is the
 contract, the shortcode is the convenience.
 
+That rule is the target, not today's state. Of the four shortcodes, none has a
+partial behind it yet — `gallery`, `video` and `unity-webgl-player` are
+specified in §7.6–7.8 and `english-page-content` is standalone. So today a
+consumer who wants to change one of them shadows the shortcode file itself, and
+that is the only supported route. The names and the additive-parameters rule
+above hold regardless.
+
 ---
 
-## 9. Known violations in the current consumer
+## 9. Violations found while writing this contract
 
-Found while writing this contract. Each is a concrete item for the migration in
-issue #20, with the rule it breaks.
+Found while writing this contract, as concrete items for the migration in issue
+#20. Most of them lived in the *consumer* — `linzer0.github.io`, a different
+repository — and were closed by the Foundation migration rather than by edits
+here. The status column is what a reader needs; without it this table reads as
+a live list of defects in a repository that is clean.
 
-| # | Location | Violation | Rule |
-|---|---|---|---|
-| 1 | `layouts/partials/showcase/card-grid.html:34` | hardcoded `site.Language.Lang == "ru"` → `"Открыть обновление"` | R1, §4 |
-| 2 | `layouts/partials/showcase/hero.html:48` | hardcoded `ru` → `"Дата"` | R1, §4 |
-| 3 | `layouts/partials/showcase/hero.html:49` | reads `site.Params.DateFormat`, a PaperMod parameter | R4 |
-| 4 | `layouts/partials/showcase/card-grid.html:26` | implicit `$.page` caller-context dependency | R3 |
-| 5 | `layouts/partials/showcase/card-grid.html:6,20,57-60` | assumes `cover.image` / `hero.image` and hardcodes a summary fallback | R3 |
-| 6 | `layouts/partials/showcase/card-grid.html:8-19,35-46` | procedural generated-preview art — brand presentation living inside a "generic" grid | R2 |
-| 7 | `assets/css/accessibility-base.css:17-29,37-41` | hardcodes PaperMod selectors `.footer`, `#theme-toggle`, `.top-link` | R4 |
-| 8 | `assets/css/accessibility-base.css:8,13` | `--site-*` variable namespace is site-flavored, not Foundation-flavored | §3 |
-| 9 | `assets/css/shortcodes-base.css:94,99,107` | hardcoded site-root asset URLs that do not exist in this repository | R4, §7.8 |
-| 10 | `assets/css/shortcodes-base.css:37,67,72,79,141,155` | hardcoded color literals instead of custom properties | §5 |
-| 11 | `layouts/shortcodes/gallery.html:8,19,24` | hardcoded English `aria-label`s, no `strings` parameter | §4 |
-| 12 | `layouts/shortcodes/unity-webgl-player.html:9,12,16` | hardcoded English labels | §4 |
-| 13 | Consumer `hugo.yaml` | Keep Foundation before any optional fallback theme so its templates are not shadowed | §2 |
+| # | Location | Violation | Rule | Status |
+|---|---|---|---|---|
+| 1 | consumer `layouts/partials/showcase/card-grid.html:34` | hardcoded `site.Language.Lang == "ru"` → `"Открыть обновление"` | R1, §4 | moot — `showcase/` deleted, replaced by `fn/*` adapters |
+| 2 | consumer `showcase/hero.html:48` | hardcoded `ru` → `"Дата"` | R1, §4 | moot, as above |
+| 3 | consumer `showcase/hero.html:49` | reads `site.Params.DateFormat`, a PaperMod parameter | R4 | moot, as above |
+| 4 | consumer `showcase/card-grid.html:26` | implicit `$.page` caller-context dependency | R3 | moot, as above |
+| 5 | consumer `showcase/card-grid.html:6,20,57-60` | assumes `cover.image` / `hero.image`, hardcodes a summary fallback | R3 | moot, as above |
+| 6 | consumer `showcase/card-grid.html:8-19,35-46` | generated-preview art — brand presentation inside a "generic" grid | R2 | moot, as above |
+| 7 | consumer `assets/css/accessibility-base.css:17-29,37-41` | hardcoded PaperMod selectors | R4 | fixed in Foundation `accessibility-base.css`, which now has none |
+| 8 | consumer `accessibility-base.css:8,13` | `--site-*` namespace, site-flavoured | §3 | fixed — the Foundation uses `--fn-*`; the consumer loads the Foundation's file |
+| 9 | `assets/css/shortcodes-base.css:94,99,107` | hardcoded site-root asset URLs | R4, §7.8 | fixed — 0 `/img/` in this repository, and the neutrality guard fails the build if one returns |
+| 10 | consumer `shortcodes-base.css` | hardcoded colour literals instead of custom properties | §5 | fixed — the consumer loads the Foundation's `--fn-*` file |
+| 11 | `layouts/shortcodes/gallery.html:8,19,24` | hardcoded English `aria-label`s, no `strings` parameter | §4 | **fixed** — labels resolve through `fn/strings.html`; output byte-identical, and the existing keys were already there unused |
+| 12 | `layouts/shortcodes/unity-webgl-player.html:9,12,16` | hardcoded English labels | §4 | **open** |
+| 13 | consumer `hugo.yaml` | keep Foundation before any optional fallback theme | §2 | satisfied — the consumer lists `hugo-foundation` before `PaperMod` |
 
-Items 1–5 and 11–12 are correctness problems: they are the reason a second
-consumer cannot reuse these components today. Items 6–10 are boundary problems:
-they mark where brand presentation has leaked into the neutral layer.
+Item 12 is the one still open, and it is not a one-line fix. The shortcode has
+three literals of its own, and the `strings` keys that were written for it
+(`narrowViewportHint`, `mobileUnsupported`, `loadGame`) do not match them
+word for word, so wiring the shortcode to the resolver changes what readers
+see. That is a decision about which text is right, not a wiring job:
+
+- line 9: "This content does not resize on smaller browser widths. Try using the
+  fullscreen button below (after loading the game)." vs `narrowViewportHint`
+- line 12: "Unity WebGL builds are not supported on mobile devices." vs
+  `mobileUnsupported`
+- line 16: `start loading` vs `loadGame` ("Start loading")
+
+`strings.fullscreen` is also unused: the fullscreen control is an empty
+`<div>`, so it has no accessible name at all.
+
+Items 11 and 12 are the reason a second consumer cannot localise these two
+components today. Item 11 is closed; item 12 is the remaining half, and closing
+it means choosing the text before wiring it.
 
 ---
 
@@ -573,8 +609,10 @@ only correct answer is the directory split above. See `docs/BASE-THEME.md`.
   waiting on the migration, listed in a baseline inside the script. The baseline
   may shrink; it may not grow, and a known-class finding outside it fails.
 
-  Current state: 0 hard, 5 known (three `/img/` paths in `shortcodes-base.css`,
-  two PaperMod selectors in `accessibility-base.css`).
+  Current state: 0 hard, 0 known. The baseline still names
+  `shortcodes-base.css` and `accessibility-base.css` as tripwires for the two
+  classes §9 recorded there (items 7 and 9), but neither file contains a
+  finding any more, so a regression in either is reported as new and fails.
 
 If Hugo Extended is not available locally, say so explicitly. Do not claim the
 build is green.

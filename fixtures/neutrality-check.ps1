@@ -26,8 +26,14 @@ $repo = Split-Path -Parent $root
 
 # file -> why it is still here
 $Baseline = @{
-    'shortcodes-base.css'     = 'item 9: /img/ paths resolve against the consumer; must move to component params'
-    'accessibility-base.css'  = 'item 7: hardcoded PaperMod selectors; must become an opt-in hook'
+    # Both of these are clean today: `shortcodes-base.css` has no `/img/` path
+    # and `accessibility-base.css` has no base-theme selector. The entries stay
+    # as tripwires for those two files, not as acknowledgements of live defects
+    # — see CONTRACTS.md §9. Removing a waiver for a fixed file is what lets the
+    # baseline shrink, and the class is still `known` rather than `hard` so a
+    # deliberate future image stays a review question instead of a hard stop.
+    'shortcodes-base.css'     = 'item 9: was /img/ paths resolving against the consumer; now clean'
+    'accessibility-base.css'  = 'item 7: was hardcoded PaperMod selectors; now clean'
 }
 
 # archetypes/ is included: an archetype is the starting point for every article

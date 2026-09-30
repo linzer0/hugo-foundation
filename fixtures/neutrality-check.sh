@@ -12,8 +12,11 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo="$(dirname "$root")"
 
-baseline_shortcodes='item 9: /img/ paths resolve against the consumer; must move to component params'
-baseline_access='item 7: hardcoded PaperMod selectors; must become an opt-in hook'
+# Both clean today: shortcodes-base.css has no /img/ path and
+# accessibility-base.css has no base-theme selector. Kept as tripwires for
+# those two files, not as acknowledgements of live defects — CONTRACTS.md §9.
+baseline_shortcodes='item 9: was /img/ paths resolving against the consumer; now clean'
+baseline_access='item 7: was hardcoded PaperMod selectors; now clean'
 
 # archetypes/ is included: an archetype is the starting point for every article
 # on every consumer's site, so a brand name or a site-specific path that leaks
