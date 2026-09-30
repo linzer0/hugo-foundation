@@ -709,10 +709,18 @@ here — this repository deliberately does not build them.
 ### 13.2 What this verification does not cover
 
 The fixture exercises each shortcode at template level: `gallery` against a
-real page bundle, `video` with stub params, and the section landing is a
-regular page. A green fixture run therefore asserts that the shortcode
-templates still parse, still link the stylesheet, and still emit the markup the
-snapshot recorded.
+real page bundle, `video` with stub params, `english-page-content` against a
+page that exists, and the section landing is a regular page. A green fixture run
+therefore asserts that the shortcode templates still parse, still link the
+stylesheet, and still emit the markup the snapshot recorded.
+
+`english-page-content` is the one whose snapshot does not say much. The fixture
+is single-language, so the English site it resolves *is* the site, and the call
+never crosses a language boundary. What is asserted is that the `hugo.Sites`
+lookup, the `GetPage` path and the `.Content` emission still work — a deprecation
+of `hugo.Sites` would fail it. What is not asserted is the branch that matters
+most: a translation pulling the English page's body. That needs a bilingual
+fixture, tracked as issue #6.
 
 It does **not** assert visual fidelity. `gallery` rendering depends on the
 image pipeline — portrait versus landscape, and the two resize targets — which a

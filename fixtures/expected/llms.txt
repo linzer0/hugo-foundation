@@ -19,5 +19,6 @@
 
 # Shortcodes
 
+- [English content smoke test](https://fixture.example/shortcodes/english-content/)
 - [Gallery smoke test](https://fixture.example/shortcodes/gallery/)
 - [Video smoke test](https://fixture.example/shortcodes/video/)
