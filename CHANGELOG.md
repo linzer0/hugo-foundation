@@ -88,9 +88,29 @@ is a regression, not an improvement.
   be localised, because its hardcoded English and the defaults written for it
   disagreed word for word, and no consumer wanted it. `AGENTS.md` says not to
   reintroduce it without one.
+- **`assets/css/base-theme-papermod.css`** — the opt-in PaperMod `.footer`
+  adapter. No Foundation template ever loaded it, and the only consumer in this
+  repository's orbit (`linar.games`) explicitly does not either, so removing it
+  is not a breaking change: no consumer-visible default is lost, and the file
+  is not part of any public partial, shortcode, class, or `--fn-*` token. Per
+  decision #51, PaperMod-specific styling belongs to the PaperMod-selecting
+  consumer, not to the shared Foundation. Consumers that need an equivalent
+  `.footer` treatment keep it in their own `assets/css/`.
 
 ### Changed
 
+- **`gallery` dialog reads `--fn-*` tokens.** The five `var(--entry|…|--primary|--secondary|--border|--theme, …)`
+  calls in `assets/css/shortcodes-base.css` are now `--fn-surface`,
+  `--fn-text`, `--fn-text-muted`, `--fn-border` and `--fn-surface-sunken`. The
+  neutral fallbacks reproduce the literal defaults that were on the PaperMod
+  variables, so a consumer that does not define the new tokens renders
+  byte-identical to before; a consumer that does (e.g. `linar.games`, which
+  already projects onto `--fn-surface` / `--fn-text` / `--fn-text-muted`) gets
+  the brand values, also as before. Two new tokens are added to the theming
+  surface: `--fn-border` (default `#ddd`) and `--fn-surface-sunken` (default
+  `#f5f5f5`). Documented in `docs/CONTRACTS.md` §7.6. Not a breaking change
+  per the contract: no public class, shortcode, partial, or existing
+  `--fn-*` token renamed; only neutral fallbacks carry the same defaults.
 - **`gallery` and `video` moved behind partials.** `fn/media/gallery.html` and
   `fn/media/video.html` now hold the compositions and the shortcodes call them,
   which is the arrangement §7.6–7.7 and §8 have always described. The partial is
