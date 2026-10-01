@@ -403,6 +403,15 @@ sitting at the bundle root is not found. `fixtures/demo/content/shortcodes/galle
 keeps its image in `cover/`, and the fixture fails if that stops being true —
 it did once, which is how the empty-container case was discovered.
 
+Custom properties: `--fn-surface` (dialog background), `--fn-text` (dialog and
+close-button foreground), `--fn-text-muted` (caption foreground),
+`--fn-border` (close-button border colour, default `#ddd`),
+`--fn-surface-sunken` (close-button background, default `#f5f5f5`). The five
+fallbacks reproduce the PaperMod defaults the file used to read through
+`--entry`, `--primary`, `--secondary`, `--border` and `--theme`, so a consumer
+that never defined those variables renders identically and a PaperMod consumer
+maps its existing tokens onto these by brand-layer assignment.
+
 ### 7.7 `fn/media/video.html`
 
 The composition behind the `video` shortcode.
